@@ -9,12 +9,11 @@ import { Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Jellyfish } from '@/components/orca/jellyfish';
-import { Bubbles } from '@/components/orca/bubbles';
-import { Clouds } from '@/components/orca/clouds';
-import { Shark } from '@/components/orca/shark';
 import { useColor } from '@/hooks/useColor';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { OrcaButton } from '../squishy/orca-button';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -49,6 +48,8 @@ export const Auth = () => {
   const yellow = useColor('orca');
   const insets = useSafeAreaInsets();
 
+  const { signIn } = useAuthActions();
+
   return (
     <View style={{ flex: 1, backgroundColor: yellow }} pointerEvents='box-none'>
       <LinearGradient
@@ -66,12 +67,6 @@ export const Auth = () => {
           zIndex: 10,
         }}
       />
-
-      {/* Background Elements */}
-      <Clouds />
-      <Bubbles layers={bubbles} />
-      <Shark />
-      <Jellyfish />
 
       <View
         style={{
@@ -108,7 +103,16 @@ export const Auth = () => {
 
         <View style={{ gap: 16 }}>
           <SignInWithGoogle />
-          <SignInWithApple />
+          {/* <SignInWithApple /> */}
+
+          <OrcaButton
+            variant='black'
+            onPress={() => void signIn('anonymous')}
+            // disabled={loading}
+            // loading={loading}
+            label='Continue Anonymously'
+            icon={<Ionicons name='person' size={22} color='#FFF' />}
+          />
         </View>
 
         <View style={{ paddingHorizontal: 32, marginTop: 4 }}>

@@ -1,147 +1,127 @@
 // components/rooms/useRoomConnection.tsx
-// Provides the LiveKit agent session specifically for Room rooms.
-// The agent receives participant info and lesson context via metadata,
-// enabling speaker-aware AI moderation.
+// Builds the AI agent instructions and passes them as participant metadata
+// when joining the LiveKit room. The agent reads these from participant.metadata.
 
-import { TokenSource } from 'livekit-client';
-import { createContext, useContext, useMemo, useState } from 'react';
-import { SessionProvider, useSession } from '@livekit/components-react';
+import { createContext, useContext, useMemo } from 'react';
 import { Doc } from '@/convex/_generated/dataModel';
 import { ALL_LANGUAGES } from '@/constants/languages';
 
 interface RoomConnectionContextType {
-  isConnectionActive: boolean;
-  connect: () => void;
-  disconnect: () => void;
+  /** Metadata string to embed in the LiveKit token / participant */
+  participantMetadata: string;
+  greetingInstructions: string;
+  roomInstructions: string;
+  learningLanguage: string;
+  nativeLanguage: string;
 }
 
-const RoomConnectionContext = createContext<RoomConnectionContextType>({
-  isConnectionActive: false,
-  connect: () => {},
-  disconnect: () => {},
-});
+const RoomConnectionContext = createContext<RoomConnectionContextType | null>(
+  null,
+);
 
 export function useRoomConnection() {
   const ctx = useContext(RoomConnectionContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error(
       'useRoomConnection must be used within RoomConnectionProvider',
     );
+  }
   return ctx;
 }
 
-interface RoomConnectionProviderProps {
+interface Props {
   user: Doc<'users'>;
+  topicTitle?: string;
   children: React.ReactNode;
 }
 
 export function RoomConnectionProvider({
   user,
+  topicTitle = '',
   children,
-}: RoomConnectionProviderProps) {
-  const [isConnectionActive, setIsConnectionActive] = useState(false);
-
+}: Props) {
   const learningLanguage =
-    ALL_LANGUAGES.find((lang) => lang.code === user.learningLanguage)?.name ||
+    ALL_LANGUAGES.find((lang) => lang.code === user.learningLanguage)?.name ??
     'English';
   const nativeLanguage =
-    ALL_LANGUAGES.find((lang) => lang.code === user.nativeLanguage)?.name ||
+    ALL_LANGUAGES.find((lang) => lang.code === user.nativeLanguage)?.name ??
     'English';
 
-  // Greeting for the group when agent first joins
   const greetingInstructions = `
 Speak in ${learningLanguage}.
-Greet the group warmly. Introduce yourself as "Orca", their AI language coach for this session. you'll guide the discussion.
+Greet the group warmly. Introduce yourself as "Orca", their AI language coach and room host for this session.
+Mention that you will guide the discussion${topicTitle ? ` about "${topicTitle}"` : ''}.
 Invite everyone to introduce themselves in ${learningLanguage}.
-Keep it brief — two to three sentences.
-`;
+Keep it brief — two to three sentences max.
+`.trim();
 
-  // Full multi-participant moderator instructions
   const roomInstructions = `
 ROLE
-You are "Orca", an expert and encouraging ${learningLanguage} language coach moderating a group discussion.
-
-
+You are "Orca", an expert and encouraging ${learningLanguage} language coach hosting and moderating a group audio discussion.
+You are the room HOST — you keep the conversation structured, on-topic, and productive.
 
 SPEAKER AWARENESS
-- You are in a room with multiple speakers. Pay close attention to WHO is speaking.
+- Pay close attention to WHO is speaking (you can see their names).
 - When someone finishes speaking, address them by name in your response.
-- Track who has spoken and who hasn't. Invite quieter participants to contribute.
+- Track who has spoken and who hasn't — invite quieter participants to contribute.
 - If two people speak at once, acknowledge both.
 
 LANGUAGE RULES
 - Conduct the session primarily in ${learningLanguage}.
-- Use ${nativeLanguage} ONLY for explaining mistakes or grammar.
+- Use ${nativeLanguage} ONLY to explain grammar mistakes or for brief clarifications.
 - Never mix languages in a single sentence.
 
 MODERATION FLOW
-1. Start with a warm-up: ask each participant to introduce themselves in ${learningLanguage}.
-2. Present one lesson sentence at a time to the group.
-3. Ask for volunteers to practice or call on specific participants by name.
-4. Give individual feedback after each attempt.
-5. Celebrate correct pronunciation. Gently correct mistakes.
-6. Move to the next sentence once 2-3 participants have practiced it.
-7. End each sentence with a summary of common mistakes and the correct form.
+1. Warm-up: ask each participant to introduce themselves in ${learningLanguage}.
+2. Propose a discussion topic or question for the group.
+3. Call on participants by name to respond.
+4. Give brief, encouraging feedback after each response.
+5. Correct mistakes gently: say the correct form once, then ask them to repeat.
+6. Summarise key points periodically to keep the group aligned.
+7. Keep energy high and positive throughout.
 
 FEEDBACK STYLE
-- Direct your feedback at the person who just spoke: "Great job, [Name]!" or "[Name], try saying it more slowly."
-- For corrections: say the correct form once clearly, then ask them to repeat.
-- Keep energy high and positive.
+- Address feedback directly: "Great job, [Name]!" or "[Name], try saying it more slowly."
+- For corrections: model the correct form first, then ask for repetition.
 
 GROUP DYNAMICS
 - If the conversation stalls, prompt a specific person: "[Name], what do you think?"
-- If someone dominates, invite others: "Let's hear from someone else. [Name], your turn!"
-- Periodically summarize progress: "We've covered X sentences. Let's keep going!"
+- If someone dominates, invite others: "Let's hear from someone else — [Name], your turn!"
 
 BEHAVIOR CONSTRAINTS
-- Never invent new sentences.
-- Stay focused on pronunciation and speaking practice.
-- Keep responses concise — you are in a live audio session.
-`;
+- Stay focused on language practice and group discussion.
+- Keep individual responses concise — you are in a live audio session.
+- Do not lecture; prioritise interactive back-and-forth.
+`.trim();
 
-  const tokenSource = TokenSource.endpoint(
-    `${process.env.EXPO_PUBLIC_CONVEX_SITE_URL}/getToken`,
-  );
+  const participantMetadata = JSON.stringify({
+    greetingInstructions,
+    roomInstructions,
+    topicTitle,
+    learningLanguage,
+    nativeLanguage,
+  });
 
-  // The room name must match what the backend generates for this room session.
-  // The participant metadata carries lesson/room context to the agent.
-  const session = useSession(tokenSource, {
-    roomName: `room-`,
-    agentName: `room-orca-`,
-    participantIdentity: `room-`,
-    participantName: user.name ?? 'Participant',
-    participantMetadata: JSON.stringify({
+  const value = useMemo<RoomConnectionContextType>(
+    () => ({
+      participantMetadata,
       greetingInstructions,
       roomInstructions,
-      lessonTitle: 'lesson.title',
       learningLanguage,
       nativeLanguage,
     }),
-    participantAttributes: {},
-  });
-
-  const { start: startSession, end: endSession } = session;
-
-  const value = useMemo(
-    () => ({
-      isConnectionActive,
-      connect: () => {
-        setIsConnectionActive(true);
-        startSession();
-      },
-      disconnect: () => {
-        setIsConnectionActive(false);
-        endSession();
-      },
-    }),
-    [startSession, endSession, isConnectionActive],
+    [
+      participantMetadata,
+      greetingInstructions,
+      roomInstructions,
+      learningLanguage,
+      nativeLanguage,
+    ],
   );
 
   return (
-    <SessionProvider session={session}>
-      <RoomConnectionContext.Provider value={value}>
-        {children}
-      </RoomConnectionContext.Provider>
-    </SessionProvider>
+    <RoomConnectionContext.Provider value={value}>
+      {children}
+    </RoomConnectionContext.Provider>
   );
 }

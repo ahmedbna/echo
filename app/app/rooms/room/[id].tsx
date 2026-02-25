@@ -1,3 +1,4 @@
+// app/rooms/room/[id].tsx
 import { useLocalSearchParams } from 'expo-router';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -9,8 +10,8 @@ import { Room } from '@/components/rooms/room';
 import { RoomConnectionProvider } from '@/components/rooms/useRoomConnection';
 
 export default function RoomScreen() {
-  const { id } = useLocalSearchParams<{ id: Id<'rooms'> }>();
-  const room = useQuery(api.rooms.get, { roomId: id });
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const room = useQuery(api.rooms.get, { roomId: id as Id<'rooms'> });
   const user = useQuery(api.users.get, {});
 
   if (room === undefined || user === undefined) {
@@ -38,14 +39,18 @@ export default function RoomScreen() {
           backgroundColor: '#0A0A0F',
         }}
       >
-        <Text style={{ color: '#FFFFFF', fontSize: 18 }}>Meet not found</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 18 }}>Room not found</Text>
       </View>
     );
   }
 
+  // `room.topic` from Convex is the doc from the `topics` table (joined)
+  // `room.topic` (string) is the optional discussion topic text
+  const topicTitle = (room as any).topic?.title ?? room.title;
+
   return (
-    <RoomConnectionProvider user={user}>
-      <Room room={room} currentUser={user} roomId={id} />
+    <RoomConnectionProvider user={user} topicTitle={topicTitle}>
+      <Room room={room as any} currentUser={user} roomId={id as Id<'rooms'>} />
     </RoomConnectionProvider>
   );
 }

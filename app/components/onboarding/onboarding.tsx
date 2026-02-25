@@ -6,14 +6,9 @@ import { View } from '@/components/ui/view';
 import { Text } from '@/components/ui/text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Jellyfish } from '@/components/orca/jellyfish';
-import { Bubbles } from '@/components/orca/bubbles';
-import { Clouds } from '@/components/orca/clouds';
-import { Shark } from '@/components/orca/shark';
 import { useColor } from '@/hooks/useColor';
 import { NATIVES, LANGUAGES } from '@/constants/languages';
 import { OrcaButton } from '@/components/squishy/orca-button';
-import { Seafloor } from '@/components/orca/seafloor';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Progress } from '@/components/squishy/progress';
 import { Image } from 'expo-image';
@@ -61,13 +56,7 @@ const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
   }
 };
 
-export const Onboarding = ({
-  user,
-  models,
-}: {
-  user?: Doc<'users'>;
-  models: Array<Doc<'piperModels'>>;
-}) => {
+export const Onboarding = ({ user }: { user?: Doc<'users'> }) => {
   const insets = useSafeAreaInsets();
   const yellow = useColor('orca');
   const border = useColor('border');
@@ -152,12 +141,6 @@ export const Onboarding = ({
           zIndex: 10,
         }}
       />
-
-      <Clouds />
-      <Bubbles layers={bubbles} />
-      <Shark />
-      <Jellyfish />
-      <Seafloor speed={0} bottom={BOTTOM_BAR_HEIGHT} />
 
       <View
         style={{

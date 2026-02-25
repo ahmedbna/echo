@@ -1,3 +1,4 @@
+// app/rooms/[id].tsx
 import { Rooms } from '@/components/rooms/rooms';
 import { Spinner } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
@@ -8,11 +9,13 @@ import { useQuery } from 'convex/react';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function RoomsScreen() {
-  const { id } = useLocalSearchParams<{ id: Id<'topics'> }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const user = useQuery(api.users.get, {});
-  const lesson = useQuery(api.topics.get, { lessonId: id });
+  const topic = useQuery(api.topics.getById, {
+    topicId: id as Id<'topics'>,
+  });
 
-  if (lesson === undefined || user === undefined) {
+  if (topic === undefined || user === undefined) {
     return (
       <View
         style={{
@@ -27,10 +30,10 @@ export default function RoomsScreen() {
     );
   }
 
-  if (lesson === null || user === null) {
+  if (topic === null || user === null) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Lesson Not Found</Text>
+        <Text>Topic Not Found</Text>
       </View>
     );
   }
@@ -38,9 +41,9 @@ export default function RoomsScreen() {
   return (
     <Rooms
       user={user}
-      lessonId={lesson._id}
-      lessonTitle={lesson.title}
-      lesson={lesson}
+      topicId={topic._id}
+      topicTitle={topic.title}
+      topic={topic}
     />
   );
 }

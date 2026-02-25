@@ -1,6 +1,6 @@
 'use node';
 
-// convex/api/meetNode.ts
+// convex/api/roomNode.ts
 import { v } from 'convex/values';
 import { action } from '../_generated/server';
 import { AccessToken } from 'livekit-server-sdk';
@@ -11,14 +11,15 @@ export const generateRoomToken = action({
     topicId: v.string(),
     userId: v.string(),
     userName: v.string(),
+    participantMetadata: v.optional(v.string()),
   },
   handler: async (_ctx, args) => {
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       throw new Error('LiveKit environment variables not set');
     }
 
-    // Unique room name for this meet session — scoped to lessonId + roomId
-    const roomName = `meet_${args.topicId}_${args.roomId}`;
+    // Unique room name scoped to topicId + roomId
+    const roomName = `room_${args.topicId}_${args.roomId}`;
 
     const at = new AccessToken(
       process.env.LIVEKIT_API_KEY,
@@ -26,6 +27,8 @@ export const generateRoomToken = action({
       {
         identity: args.userId,
         name: args.userName,
+        // Embed AI agent instructions — agent reads from participant.metadata
+        metadata: args.participantMetadata ?? '',
         ttl: '4h',
       },
     );

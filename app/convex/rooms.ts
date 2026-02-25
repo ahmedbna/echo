@@ -3,12 +3,12 @@ import { v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
 
-const MAX_MEET_PARTICIPANTS = 5;
+const MAX_PARTICIPANTS = 5;
 
 /* -------------------------------------------------- */
-/* LIST ACTIVE MEETS FOR A LESSON */
+/* LIST ACTIVE ROOMS FOR A TOPIC                       */
 /* -------------------------------------------------- */
-export const getByTopic = query({
+export const listByTopic = query({
   args: { topicId: v.id('topics') },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -55,7 +55,7 @@ export const getByTopic = query({
           ...room,
           participants: activeParticipants,
           participantCount: activeParticipants.length,
-          isFull: activeParticipants.length >= MAX_MEET_PARTICIPANTS,
+          isFull: activeParticipants.length >= MAX_PARTICIPANTS,
         };
       }),
     );
@@ -65,7 +65,7 @@ export const getByTopic = query({
 });
 
 /* -------------------------------------------------- */
-/* GET SINGLE MEET ROOM */
+/* GET SINGLE ROOM                                     */
 /* -------------------------------------------------- */
 export const get = query({
   args: { roomId: v.id('rooms') },
@@ -90,9 +90,9 @@ export const get = query({
           ...p,
           user: {
             _id: user?._id,
-            name: user?.name || 'Anonymous',
-            image: user?.image || null,
-            lang: user?.nativeLanguage || 'en',
+            name: user?.name ?? 'Anonymous',
+            image: user?.image ?? null,
+            lang: user?.nativeLanguage ?? 'en',
           },
         };
       }),
@@ -107,14 +107,14 @@ export const get = query({
       ...room,
       host: {
         _id: host?._id,
-        name: host?.name || 'Anonymous',
-        image: host?.image || null,
+        name: host?.name ?? 'Anonymous',
+        image: host?.image ?? null,
       },
       topic,
       participants: participantsWithUsers,
       participantCount: activeParticipants.length,
-      isFull: activeParticipants.length >= MAX_MEET_PARTICIPANTS,
-      maxParticipants: MAX_MEET_PARTICIPANTS,
+      isFull: activeParticipants.length >= MAX_PARTICIPANTS,
+      maxParticipants: MAX_PARTICIPANTS,
       isMuted: myParticipation?.isMuted ?? false,
       isInRoom: myParticipation?.isActive ?? false,
     };
@@ -122,7 +122,7 @@ export const get = query({
 });
 
 /* -------------------------------------------------- */
-/* CREATE MEET ROOM */
+/* CREATE ROOM                                         */
 /* -------------------------------------------------- */
 export const create = mutation({
   args: {
@@ -157,7 +157,7 @@ export const create = mutation({
 });
 
 /* -------------------------------------------------- */
-/* JOIN MEET ROOM */
+/* JOIN ROOM                                           */
 /* -------------------------------------------------- */
 export const join = mutation({
   args: { roomId: v.id('rooms') },
@@ -184,9 +184,9 @@ export const join = mutation({
           .filter((q) => q.eq(q.field('isActive'), true))
           .collect();
 
-        if (activeParticipants.length >= MAX_MEET_PARTICIPANTS) {
+        if (activeParticipants.length >= MAX_PARTICIPANTS) {
           throw new Error(
-            `Room is full (max ${MAX_MEET_PARTICIPANTS} participants)`,
+            `Room is full (max ${MAX_PARTICIPANTS} participants)`,
           );
         }
 
@@ -206,10 +206,8 @@ export const join = mutation({
       .filter((q) => q.eq(q.field('isActive'), true))
       .collect();
 
-    if (activeParticipants.length >= MAX_MEET_PARTICIPANTS) {
-      throw new Error(
-        `Room is full (max ${MAX_MEET_PARTICIPANTS} participants)`,
-      );
+    if (activeParticipants.length >= MAX_PARTICIPANTS) {
+      throw new Error(`Room is full (max ${MAX_PARTICIPANTS} participants)`);
     }
 
     const participantId = await ctx.db.insert('roomParticipants', {
@@ -225,7 +223,7 @@ export const join = mutation({
 });
 
 /* -------------------------------------------------- */
-/* LEAVE MEET ROOM */
+/* LEAVE ROOM                                          */
 /* -------------------------------------------------- */
 export const leave = mutation({
   args: { roomId: v.id('rooms') },
@@ -256,7 +254,7 @@ export const leave = mutation({
     const othersRemaining = remaining.filter((p) => p.userId !== userId);
 
     if (othersRemaining.length === 0) {
-      await _deleteRoomRoom(ctx, args.roomId);
+      await _deleteRoom(ctx, args.roomId);
       return { success: true, roomDeleted: true };
     }
 
@@ -271,7 +269,7 @@ export const leave = mutation({
 });
 
 /* -------------------------------------------------- */
-/* TOGGLE MUTE */
+/* TOGGLE MUTE                                         */
 /* -------------------------------------------------- */
 export const toggleMute = mutation({
   args: { roomId: v.id('rooms') },
@@ -294,9 +292,9 @@ export const toggleMute = mutation({
 });
 
 /* -------------------------------------------------- */
-/* INTERNAL: delete room room + all participant records */
+/* INTERNAL: delete room + all participant records     */
 /* -------------------------------------------------- */
-async function _deleteRoomRoom(ctx: any, roomId: any) {
+async function _deleteRoom(ctx: any, roomId: any) {
   const participants = await ctx.db
     .query('roomParticipants')
     .withIndex('by_room', (q: any) => q.eq('roomId', roomId))

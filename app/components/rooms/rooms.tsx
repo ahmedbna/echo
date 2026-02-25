@@ -1,3 +1,4 @@
+// components/rooms/rooms.tsx
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -33,28 +34,28 @@ const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
 
 type Props = {
   user: Doc<'users'>;
-  lessonId: Id<'lessons'>;
-  lessonTitle: string;
-  lesson: Doc<'lessons'>;
+  topicId: Id<'topics'>;
+  topicTitle: string;
+  topic: Doc<'topics'>;
 };
 
-export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
+export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const rooms = useQuery(api.rooms.listByLesson, { lessonId });
+  const rooms = useQuery(api.rooms.listByTopic, { topicId });
   const createRoom = useMutation(api.rooms.create);
 
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const handleCreate = async (title: string, topic: string) => {
+  const handleCreate = async (title: string, discussionTopic: string) => {
     setCreating(true);
     try {
       const roomId = await createRoom({
-        lessonId,
+        topicId,
         title,
-        topic: topic || undefined,
+        topic: discussionTopic || undefined,
       });
       setShowCreate(false);
       router.push(`/rooms/room/${roomId}`);
@@ -142,7 +143,7 @@ export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
           >
             <ChevronLeft size={24} color='#FFF' strokeWidth={3} />
             <Text style={styles.headerTitle} numberOfLines={2}>
-              {lessonTitle}
+              {topicTitle}
             </Text>
           </TouchableOpacity>
 
@@ -160,11 +161,11 @@ export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
           </Pressable>
         </View>
 
-        {/* AI badge */}
+        {/* AI banner */}
         <View style={styles.aiBanner}>
           <Bot size={16} color='#FAD40B' strokeWidth={2.5} />
           <Text style={styles.aiBannerText}>
-            AI-moderated discussions — Orca joins every room as a language coach
+            AI-moderated rooms — Orca joins every room as your language coach
           </Text>
         </View>
 
@@ -180,7 +181,7 @@ export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
               <Text style={styles.emptyTitle}>No rooms yet</Text>
               <Text style={styles.emptyBody}>
                 Start an AI-powered group discussion where Orca moderates and
-                coaches everyone
+                coaches everyone in real time
               </Text>
             </View>
             <View style={{ width: '80%', marginTop: 8 }}>
@@ -205,7 +206,7 @@ export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
               />
             )}
             ListHeaderComponent={() =>
-              rooms.length > 0 && (
+              rooms.length > 0 ? (
                 <View style={styles.sectionHeader}>
                   <View style={styles.liveIndicator} />
                   <Text style={styles.sectionLabel}>
@@ -213,7 +214,7 @@ export const Rooms = ({ user, lessonId, lessonTitle, lesson }: Props) => {
                     {rooms.length === 1 ? 'Room' : 'Rooms'}
                   </Text>
                 </View>
-              )
+              ) : null
             }
           />
         )}

@@ -48,12 +48,6 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
 
-/**
- * AnalyticsTracker — must live INSIDE ConvexAuthProvider + Authenticated
- * so useMutation can reach Convex, and it covers EVERY route in the app
- * (root-level Stack includes (home), orca/[id], camera/[id], classroom/[id],
- *  rooms/, meets/, posts/, study/, notifications, (modal)/settings, etc.)
- */
 const AnalyticsTracker = () => {
   useAnalytics(); // auto-tracks: session, route changes, foreground/background
   return null;

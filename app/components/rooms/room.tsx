@@ -1,3 +1,4 @@
+// components/rooms/room.tsx
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
@@ -40,6 +41,7 @@ import { OrcaButton } from '@/components/squishy/orca-button';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ALL_LANGUAGES } from '@/constants/languages';
+import { useRoomConnection } from '@/components/rooms/useRoomConnection';
 import * as Haptics from 'expo-haptics';
 import * as KeepAwake from 'expo-keep-awake';
 
@@ -51,12 +53,12 @@ type RoomData = {
   _id: Id<'rooms'>;
   title: string;
   topic?: string;
-  lessonId: Id<'lessons'>;
+  topicId: Id<'topics'>;
   hostId: Id<'users'>;
   status: 'active' | 'ended';
   startedAt: number;
   host: { _id: any; name: string; image: string | null };
-  lesson: Doc<'lessons'>;
+  topic_data: Doc<'topics'>;
   participants: Array<{
     _id: any;
     userId: Id<'users'>;
@@ -100,9 +102,10 @@ async function requestMicPermission(): Promise<boolean> {
 
 async function fetchRoomToken(params: {
   roomId: string;
-  lessonId: string;
+  topicId: string;
   userId: string;
   userName: string;
+  participantMetadata?: string;
 }): Promise<{ serverUrl: string; token: string; roomName: string }> {
   const endpoint = `${process.env.EXPO_PUBLIC_CONVEX_SITE_URL}/getRoomToken`;
   const res = await fetch(endpoint, {
@@ -118,6 +121,7 @@ async function fetchRoomToken(params: {
 }
 
 export const Room = ({ room, currentUser, roomId }: Props) => {
+  const { participantMetadata } = useRoomConnection();
   const [token, setToken] = useState<string | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -165,9 +169,10 @@ export const Room = ({ room, currentUser, roomId }: Props) => {
         await joinRoom({ roomId });
         const result = await fetchRoomToken({
           roomId: roomId as string,
-          lessonId: room.lessonId as string,
+          topicId: room.topicId as string,
           userId: currentUser._id as string,
-          userName: currentUser.name || 'Anonymous',
+          userName: currentUser.name ?? 'Anonymous',
+          participantMetadata,
         });
         if (!cancelled) {
           setServerUrl(result.serverUrl);
@@ -254,7 +259,7 @@ export const Room = ({ room, currentUser, roomId }: Props) => {
       onDisconnected={handleDisconnect}
       options={{ adaptiveStream: false }}
     >
-      <RoomRoomView
+      <RoomView
         room={room}
         currentUser={currentUser}
         roomId={roomId}
@@ -265,21 +270,16 @@ export const Room = ({ room, currentUser, roomId }: Props) => {
 };
 
 /* ═══════════════ */
-/*  RoomRoomView  */
+/*    RoomView     */
 /* ═══════════════ */
-type RoomRoomViewProps = {
+type RoomViewProps = {
   room: RoomData;
   currentUser: Doc<'users'>;
   roomId: Id<'rooms'>;
   onLeave: () => void;
 };
 
-const RoomRoomView = ({
-  room,
-  currentUser,
-  roomId,
-  onLeave,
-}: RoomRoomViewProps) => {
+const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
   const insets = useSafeAreaInsets();
   const { localParticipant } = useLocalParticipant();
   const lkRoom = useRoomContext();
@@ -463,7 +463,7 @@ const RoomRoomView = ({
         {/* AI Agent Visualization */}
         <AgentSection />
 
-        {/* Transcript toggle */}
+        {/* Transcript or Participant Grid */}
         {showTranscript ? (
           <TranscriptPanel onClose={() => setShowTranscript(false)} />
         ) : (
@@ -483,6 +483,13 @@ const RoomRoomView = ({
                 isCurrentUser={item.userId === currentUser._id}
                 cardWidth={CARD_WIDTH}
               />
+            )}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyParticipants}>
+                <Text style={styles.emptyParticipantsText}>
+                  Waiting for participants…
+                </Text>
+              </View>
             )}
           />
         )}
@@ -552,6 +559,21 @@ const AgentSection = () => {
     transform: [{ scale: pulseScale.value }],
   }));
 
+  const agentStateLabel = () => {
+    switch (state) {
+      case 'speaking':
+        return '🗣️ Speaking…';
+      case 'listening':
+        return '👂 Listening…';
+      case 'thinking':
+        return '💭 Thinking…';
+      case 'initializing':
+        return '⚙️ Initializing…';
+      default:
+        return '⏳ Connecting…';
+    }
+  };
+
   return (
     <View style={styles.agentSection}>
       <View style={styles.agentInner}>
@@ -576,15 +598,8 @@ const AgentSection = () => {
         {/* Text + visualizer */}
         <View style={styles.agentTextWrap}>
           <Text style={styles.agentName}>Orca AI</Text>
-          <Text style={styles.agentStatus}>
-            {state === 'speaking'
-              ? '🗣️ Speaking…'
-              : state === 'listening'
-                ? '👂 Listening…'
-                : state === 'thinking'
-                  ? '💭 Thinking…'
-                  : '⏳ Connecting…'}
-          </Text>
+          <Text style={styles.agentStatus}>{agentStateLabel()}</Text>
+          <Text style={styles.agentRole}>Host & Language Coach</Text>
         </View>
 
         {/* Bar visualizer */}
@@ -615,7 +630,7 @@ const AgentSection = () => {
 };
 
 /* ══════════════════ */
-/*  Transcript Panel */
+/*  Transcript Panel  */
 /* ══════════════════ */
 const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
   const { messages } = useSessionMessages();
@@ -626,7 +641,7 @@ const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
       <FlatList
         data={[...messages].reverse()}
         inverted
-        keyExtractor={(item, i) => `msg-${i}`}
+        keyExtractor={(_, i) => `msg-${i}`}
         contentContainerStyle={{ padding: 12, gap: 8 }}
         renderItem={({ item }) => {
           const isLocal = item.from === localParticipant;
@@ -654,6 +669,13 @@ const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
           );
         }}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <View style={{ alignItems: 'center', paddingTop: 40, gap: 8 }}>
+            <Text style={{ color: '#555', fontSize: 13 }}>
+              Conversation will appear here
+            </Text>
+          </View>
+        )}
       />
     </View>
   );
@@ -694,6 +716,8 @@ const RoomParticipantCard = ({
   }, [participant.isMuted]);
 
   const AVATAR = 56;
+  const langFlag =
+    ALL_LANGUAGES.find((l) => l.code === participant.user.lang)?.flag ?? '';
 
   return (
     <Animated.View
@@ -750,8 +774,7 @@ const RoomParticipantCard = ({
       </View>
 
       <Text style={styles.cardName} numberOfLines={1}>
-        {isCurrentUser ? 'You' : participant.user.name}{' '}
-        {ALL_LANGUAGES.find((l) => l.code === participant.user.lang)?.flag}
+        {isCurrentUser ? 'You' : participant.user.name} {langFlag}
       </Text>
 
       <View style={styles.cardStatus}>
@@ -776,7 +799,7 @@ const RoomParticipantCard = ({
 };
 
 /* ══════════════════════ */
-/*  Squishy Control Btn   */
+/*  Squishy Control Btn  */
 /* ══════════════════════ */
 const CTRL_SIZE = 72;
 const CTRL_SHADOW = 6;
@@ -888,7 +911,6 @@ const styles = StyleSheet.create({
   },
   countBadgeText: { color: '#FFF', fontSize: 12, fontWeight: '800' },
 
-  /* Agent section */
   agentSection: {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.06)',
@@ -935,19 +957,17 @@ const styles = StyleSheet.create({
   agentTextWrap: { flex: 1 },
   agentName: { color: '#FAD40B', fontSize: 16, fontWeight: '900' },
   agentStatus: { color: '#777', fontSize: 13, fontWeight: '600', marginTop: 2 },
+  agentRole: {
+    color: '#555',
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 2,
+    letterSpacing: 0.3,
+  },
   barWrap: { width: 80, height: 36 },
 
-  /* Transcript panel */
-  transcriptPanel: {
-    flex: 1,
-    backgroundColor: '#0D0D14',
-  },
-  msgBubble: {
-    maxWidth: '80%',
-    borderRadius: 16,
-    padding: 12,
-    gap: 4,
-  },
+  transcriptPanel: { flex: 1, backgroundColor: '#0D0D14' },
+  msgBubble: { maxWidth: '80%', borderRadius: 16, padding: 12, gap: 4 },
   msgBubbleLocal: {
     alignSelf: 'flex-end',
     backgroundColor: 'rgba(250,212,11,0.15)',
@@ -970,10 +990,18 @@ const styles = StyleSheet.create({
   msgText: { color: '#DDD', fontSize: 14, lineHeight: 20, fontWeight: '500' },
   msgTextLocal: { color: '#FAD40B' },
 
-  /* Grid */
   gridContent: { padding: 16, paddingTop: 20, gap: 12 },
 
-  /* Participant card */
+  emptyParticipants: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyParticipantsText: {
+    color: '#555',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
   card: {
     flex: 1,
     backgroundColor: '#13131F',
@@ -1023,7 +1051,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1FD65F',
   },
 
-  /* Controls bar */
   controls: {
     position: 'absolute',
     bottom: 0,

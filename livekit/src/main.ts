@@ -20,44 +20,57 @@ export default defineAgent({
     proc.userData.vad = await silero.VAD.load();
   },
   entry: async (ctx: JobContext) => {
-    // Step 1: connect first
+    // Step 1: Connect to the room first
     await ctx.connect();
 
-    // Step 2: wait for participant BEFORE starting session
-    // This works because connect() is already done
+    // Step 2: Wait for the first participant to join
     const participant = await ctx.waitForParticipant();
 
     const attrs = participant.attributes ?? {};
     console.log('✅ Participant Attributes:', JSON.stringify(attrs, null, 2));
 
-    // Step 3: Now use metadata to build instructions
-    const metadata = participant.metadata ?? '';
-    console.log('✅ Participant Metadata:', metadata);
+    // Step 3: Parse metadata sent by the mobile app
+    let metadata: Record<string, any> = {};
+    try {
+      metadata = JSON.parse(participant.metadata ?? '{}');
+    } catch {
+      console.warn('⚠️ Failed to parse participant metadata');
+    }
 
-    const greetingInstructions = JSON.parse(metadata)?.greetingInstructions;
-    console.log('✅ greetingInstructions Metadata:', greetingInstructions);
+    console.log('✅ Participant Metadata:', JSON.stringify(metadata, null, 2));
 
-    const agentInstructions = JSON.parse(metadata)?.agentInstructions;
-    console.log('✅ agentInstructions Metadata:', agentInstructions);
+    // The app sends greetingInstructions + roomInstructions
+    const greetingInstructions =
+      metadata.greetingInstructions ??
+      'Greet the group warmly and introduce yourself as Orca, the AI language coach.';
 
-    // Step 4: Create session with the real instructions
+    const roomInstructions =
+      metadata.roomInstructions ??
+      'You are Orca, an expert language coach moderating a group discussion. Be encouraging, correct mistakes gently, and keep the conversation flowing.';
+
+    const learningLanguage = metadata.learningLanguage ?? 'English';
+    const nativeLanguage = metadata.nativeLanguage ?? 'English';
+
+    console.log('✅ Learning language:', learningLanguage);
+    console.log('✅ Native language:', nativeLanguage);
+
+    // Step 4: Create the agent session with correct instructions
     const session = new voice.AgentSession({
       llm: new openai.realtime.RealtimeModel({
         voice: 'marin',
-        // voice: 'coral',
-        // model: '',
+        // model: 'gpt-4o-realtime-preview',
       }),
     });
 
     await session.start({
-      agent: new Assistant(agentInstructions),
+      agent: new Assistant(roomInstructions),
       room: ctx.room,
       inputOptions: {
         noiseCancellation: BackgroundVoiceCancellation(),
       },
     });
 
-    // Step 5: Greet
+    // Step 5: Send the greeting
     const handle = session.generateReply({
       instructions: greetingInstructions,
     });

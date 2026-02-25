@@ -1,5 +1,5 @@
-// convex/api/meet.ts
-// HTTP handler for generating LiveKit tokens for Meet rooms
+// convex/api/room.ts
+// HTTP handler for generating LiveKit tokens for audio rooms
 
 import { httpAction } from '../_generated/server';
 import { api } from '../_generated/api';
@@ -35,6 +35,8 @@ export const getRoomToken = httpAction(async (ctx, request) => {
       topicId: body.topicId,
       userId: body.userId,
       userName: body.userName,
+      // Forward participant metadata (contains AI agent instructions)
+      participantMetadata: body.participantMetadata,
     });
 
     return new Response(JSON.stringify(result), {
@@ -42,9 +44,9 @@ export const getRoomToken = httpAction(async (ctx, request) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Meet token error:', error);
+    console.error('Room token error:', error);
     return new Response(
-      JSON.stringify({ error: 'Error generating meet token' }),
+      JSON.stringify({ error: 'Error generating room token' }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
