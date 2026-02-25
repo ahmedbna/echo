@@ -49,13 +49,18 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const handleCreate = async (title: string, discussionTopic: string) => {
+  const handleCreate = async (
+    title: string,
+    discussionTopic: string,
+    agentInstructions: string,
+  ) => {
     setCreating(true);
     try {
       const roomId = await createRoom({
         topicId,
         title,
         topic: discussionTopic || undefined,
+        agentInstructions: agentInstructions || undefined,
       });
       setShowCreate(false);
       router.push(`/rooms/room/${roomId}`);
@@ -119,12 +124,12 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
           </Text>
         </Button>
 
-        <Avatar
+        {/* <Avatar
           size={42}
           image={user?.image}
           name={user?.name}
           onPress={() => router.push('/profile')}
-        />
+        /> */}
       </View>
 
       {/* Main content body */}
@@ -142,6 +147,7 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
             }}
           >
             <ChevronLeft size={24} color='#FFF' strokeWidth={3} />
+            <Text style={styles.topicEmoji}>{topic.emoji}</Text>
             <Text style={styles.headerTitle} numberOfLines={2}>
               {topicTitle}
             </Text>
@@ -176,12 +182,12 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
           </View>
         ) : rooms.length === 0 ? (
           <Animated.View entering={FadeIn.delay(100)} style={styles.emptyState}>
-            <Text style={{ fontSize: 72 }}>🤖</Text>
+            <Text style={{ fontSize: 72 }}>{topic.emoji}</Text>
             <View style={styles.emptyTextWrap}>
               <Text style={styles.emptyTitle}>No rooms yet</Text>
               <Text style={styles.emptyBody}>
-                Start an AI-powered group discussion where Orca moderates and
-                coaches everyone in real time
+                Start an AI-powered {topicTitle} discussion where Orca moderates
+                and coaches everyone in real time
               </Text>
             </View>
             <View style={{ width: '80%', marginTop: 8 }}>
@@ -225,6 +231,8 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
         creating={creating}
+        topicEmoji={topic.emoji}
+        topicTitle={topicTitle}
       />
     </View>
   );
@@ -248,11 +256,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.06)',
   },
+  topicEmoji: {
+    fontSize: 22,
+  },
   headerTitle: {
     color: '#FFF',
     fontSize: 18,
     fontWeight: '900',
     lineHeight: 24,
+    flex: 1,
   },
   newRoomBtn: {
     flexDirection: 'row',

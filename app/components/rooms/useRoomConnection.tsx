@@ -32,12 +32,17 @@ export function useRoomConnection() {
 interface Props {
   user: Doc<'users'>;
   topicTitle?: string;
+  topicEmoji?: string;
+  /** Custom instructions set by the room creator — appended to the base prompt */
+  agentInstructions?: string;
   children: React.ReactNode;
 }
 
 export function RoomConnectionProvider({
   user,
   topicTitle = '',
+  topicEmoji = '',
+  agentInstructions = '',
   children,
 }: Props) {
   const learningLanguage =
@@ -47,18 +52,21 @@ export function RoomConnectionProvider({
     ALL_LANGUAGES.find((lang) => lang.code === user.nativeLanguage)?.name ??
     'English';
 
+  const topicLabel = [topicEmoji, topicTitle].filter(Boolean).join(' ');
+
   const greetingInstructions = `
 Speak in ${learningLanguage}.
 Greet the group warmly. Introduce yourself as "Orca", their AI language coach and room host for this session.
-Mention that you will guide the discussion${topicTitle ? ` about "${topicTitle}"` : ''}.
+Mention that you will guide the discussion${topicLabel ? ` about ${topicLabel}` : ''}.
 Invite everyone to introduce themselves in ${learningLanguage}.
 Keep it brief — two to three sentences max.
 `.trim();
 
-  const roomInstructions = `
+  const baseRoomInstructions = `
 ROLE
 You are "Orca", an expert and encouraging ${learningLanguage} language coach hosting and moderating a group audio discussion.
 You are the room HOST — you keep the conversation structured, on-topic, and productive.
+${topicLabel ? `\nTOPIC\nThe room topic / category is: ${topicLabel}. Keep discussions relevant to this theme.` : ''}
 
 SPEAKER AWARENESS
 - Pay close attention to WHO is speaking (you can see their names).
@@ -73,7 +81,7 @@ LANGUAGE RULES
 
 MODERATION FLOW
 1. Warm-up: ask each participant to introduce themselves in ${learningLanguage}.
-2. Propose a discussion topic or question for the group.
+2. Propose a discussion question related to ${topicLabel || 'the topic'}.
 3. Call on participants by name to respond.
 4. Give brief, encouraging feedback after each response.
 5. Correct mistakes gently: say the correct form once, then ask them to repeat.
@@ -94,12 +102,19 @@ BEHAVIOR CONSTRAINTS
 - Do not lecture; prioritise interactive back-and-forth.
 `.trim();
 
+  // Append any custom instructions from the room creator
+  const roomInstructions = agentInstructions
+    ? `${baseRoomInstructions}\n\nADDITIONAL INSTRUCTIONS FROM ROOM HOST\n${agentInstructions}`
+    : baseRoomInstructions;
+
   const participantMetadata = JSON.stringify({
     greetingInstructions,
     roomInstructions,
     topicTitle,
+    topicEmoji,
     learningLanguage,
     nativeLanguage,
+    agentInstructions,
   });
 
   const value = useMemo<RoomConnectionContextType>(

@@ -135,13 +135,20 @@ export default defineSchema({
     .index('by_event_type', ['eventType'])
     .index('by_date', ['eventDate']),
 
+  // Topics are categories for rooms (e.g. Sports, Food, Travel…)
   topics: defineTable({
     title: v.string(),
-  }).index('by_title', ['title']),
+    emoji: v.string(), // e.g. "⚽"
+    description: v.optional(v.string()),
+    sortOrder: v.optional(v.number()),
+  })
+    .index('by_title', ['title'])
+    .index('by_sort_order', ['sortOrder']),
 
   rooms: defineTable({
     title: v.string(),
-    topic: v.optional(v.string()),
+    topic: v.optional(v.string()), // optional free-text discussion topic shown in card
+    agentInstructions: v.optional(v.string()), // custom instructions for the AI agent
     topicId: v.id('topics'),
     hostId: v.id('users'),
     status: v.union(v.literal('active'), v.literal('ended')),

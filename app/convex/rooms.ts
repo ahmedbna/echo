@@ -110,7 +110,7 @@ export const get = query({
         name: host?.name ?? 'Anonymous',
         image: host?.image ?? null,
       },
-      topic,
+      topic_data: topic,
       participants: participantsWithUsers,
       participantCount: activeParticipants.length,
       isFull: activeParticipants.length >= MAX_PARTICIPANTS,
@@ -129,6 +129,7 @@ export const create = mutation({
     topicId: v.id('topics'),
     title: v.string(),
     topic: v.optional(v.string()),
+    agentInstructions: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -137,6 +138,7 @@ export const create = mutation({
     const roomId = await ctx.db.insert('rooms', {
       title: args.title,
       topic: args.topic,
+      agentInstructions: args.agentInstructions,
       topicId: args.topicId,
       hostId: userId,
       status: 'active',

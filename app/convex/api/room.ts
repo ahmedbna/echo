@@ -18,10 +18,12 @@ export const getRoomToken = httpAction(async (ctx, request) => {
   try {
     const body = await request.json();
 
-    if (!body.roomId || !body.topicId || !body.userId || !body.userName) {
+    // Only roomId, userId, and userName are strictly required.
+    // topicId is optional (used for room scoping in the token name).
+    if (!body.roomId || !body.userId || !body.userName) {
       return new Response(
         JSON.stringify({
-          error: 'Missing required fields: roomId, topicId, userId, userName',
+          error: 'Missing required fields: roomId, userId, userName',
         }),
         {
           status: 400,
@@ -32,10 +34,9 @@ export const getRoomToken = httpAction(async (ctx, request) => {
 
     const result = await ctx.runAction(api.api.roomNode.generateRoomToken, {
       roomId: body.roomId,
-      topicId: body.topicId,
+      topicId: body.topicId ?? body.roomId, // fall back to roomId if topicId missing
       userId: body.userId,
       userName: body.userName,
-      // Forward participant metadata (contains AI agent instructions)
       participantMetadata: body.participantMetadata,
     });
 

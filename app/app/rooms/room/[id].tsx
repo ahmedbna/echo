@@ -44,12 +44,18 @@ export default function RoomScreen() {
     );
   }
 
-  // `room.topic` from Convex is the doc from the `topics` table (joined)
-  // `room.topic` (string) is the optional discussion topic text
-  const topicTitle = (room as any).topic?.title ?? room.title;
+  const topicData = (room as any).topic_data;
+  const topicTitle = topicData?.title ?? room.title;
+  const topicEmoji = topicData?.emoji ?? '';
+  const agentInstructions = (room as any).agentInstructions ?? '';
 
   return (
-    <RoomConnectionProvider user={user} topicTitle={topicTitle}>
+    <RoomConnectionProvider
+      user={user}
+      topicTitle={topicTitle}
+      topicEmoji={topicEmoji}
+      agentInstructions={agentInstructions}
+    >
       <Room room={room as any} currentUser={user} roomId={id as Id<'rooms'>} />
     </RoomConnectionProvider>
   );

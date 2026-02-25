@@ -22,10 +22,10 @@ import {
   AudioSession,
   LiveKitRoom,
   useLocalParticipant,
+  useParticipants,
   useRoomContext,
+  BarVisualizer,
 } from '@livekit/react-native';
-import { useAgent, useSessionMessages } from '@livekit/components-react';
-import { BarVisualizer } from '@livekit/react-native';
 import { ConnectionState, RoomEvent, Track } from 'livekit-client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -102,7 +102,6 @@ async function requestMicPermission(): Promise<boolean> {
 
 async function fetchRoomToken(params: {
   roomId: string;
-  topicId: string;
   userId: string;
   userName: string;
   participantMetadata?: string;
@@ -169,7 +168,6 @@ export const Room = ({ room, currentUser, roomId }: Props) => {
         await joinRoom({ roomId });
         const result = await fetchRoomToken({
           roomId: roomId as string,
-          topicId: room.topicId as string,
           userId: currentUser._id as string,
           userName: currentUser.name ?? 'Anonymous',
           participantMetadata,
@@ -303,66 +301,49 @@ const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
   }, [lkRoom]);
 
   const toggleMuteMutation = useMutation(api.rooms.toggleMute);
-  const isMuted = room.isMuted;
 
-  const micInitializedRef = useRef(false);
-  const isMutedRef = useRef(isMuted);
-  isMutedRef.current = isMuted;
+  // Local mic state — source of truth for the actual LiveKit track.
+  // We start UNMUTED so the user can speak immediately on join.
+  const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
 
-  const applyMicState = useCallback(
-    async (muted: boolean) => {
-      if (!localParticipant || !lkRoom) return;
-      try {
-        const existingPub = localParticipant.getTrackPublication(
-          Track.Source.Microphone,
-        );
-        const trackEnded =
-          existingPub?.track?.mediaStreamTrack?.readyState === 'ended';
-        if (!existingPub || trackEnded) {
-          await localParticipant.setMicrophoneEnabled(true);
-        }
-        const pub = localParticipant.getTrackPublication(
-          Track.Source.Microphone,
-        );
-        if (!pub) return;
-        const mediaTrack = pub.track?.mediaStreamTrack;
-        if (mediaTrack) mediaTrack.enabled = !muted;
-        if (muted) await pub.mute();
-        else await pub.unmute();
-      } catch (err) {
-        console.warn('[applyMicState] error:', err);
-      }
-    },
-    [localParticipant, lkRoom],
-  );
-
+  // Enable the mic as soon as we're connected. LiveKitRoom audio={true} already
+  // publishes the track; this just makes sure it's enabled and unmuted.
   useEffect(() => {
     if (!localParticipant || !isConnected) return;
-    if (!micInitializedRef.current) {
-      micInitializedRef.current = true;
-      applyMicState(isMuted);
-      return;
-    }
-    applyMicState(isMuted);
-  }, [isMuted, isConnected, localParticipant, applyMicState]);
+    localParticipant
+      .setMicrophoneEnabled(true)
+      .catch((err) => console.warn('[mic init] error:', err));
+  }, [isConnected, localParticipant]);
 
+  // Re-enable mic after reconnect
   useEffect(() => {
     if (!lkRoom) return;
     const onReconnected = () => {
-      micInitializedRef.current = false;
-      applyMicState(isMutedRef.current);
+      localParticipant
+        ?.setMicrophoneEnabled(!isMutedRef.current)
+        .catch((err) => console.warn('[mic reconnect] error:', err));
     };
     lkRoom.on(RoomEvent.Reconnected, onReconnected);
     return () => {
       lkRoom.off(RoomEvent.Reconnected, onReconnected);
     };
-  }, [lkRoom, applyMicState]);
+  }, [lkRoom, localParticipant]);
 
   const handleToggleMic = async () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    const nextMuted = !isMutedRef.current;
+    isMutedRef.current = nextMuted;
+    setIsMuted(nextMuted);
     try {
+      // Toggle the actual LiveKit track immediately
+      await localParticipant?.setMicrophoneEnabled(!nextMuted);
+      // Sync mute state to Convex for other participants' UI
       await toggleMuteMutation({ roomId });
     } catch (e: any) {
+      // Roll back local state if the call failed
+      isMutedRef.current = !nextMuted;
+      setIsMuted(!nextMuted);
       Alert.alert('Error', e.message);
     }
   };
@@ -370,6 +351,8 @@ const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
   const GRID_PADDING = 16;
   const GRID_GAP = 12;
   const CARD_WIDTH = (width - GRID_PADDING * 2 - GRID_GAP) / 2;
+
+  const topicData = room.topic_data;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FAD40B' }}>
@@ -412,19 +395,25 @@ const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
             Orca
           </Text>
         </Button>
-        <Avatar
+        {/* <Avatar
           size={42}
           image={currentUser?.image}
           name={currentUser?.name}
           onPress={() => router.push('/profile')}
-        />
+        /> */}
       </View>
 
       {/* Main body */}
       <View style={[styles.body, { marginTop: insets.top + 70 }]}>
         {/* Header */}
         <View style={styles.headerCard}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            {topicData ? (
+              <View style={styles.topicPill}>
+                <Text style={styles.topicPillEmoji}>{topicData.emoji}</Text>
+                <Text style={styles.topicPillText}>{topicData.title}</Text>
+              </View>
+            ) : null}
             <Text style={styles.roomTitle} numberOfLines={1}>
               {room.title}
             </Text>
@@ -535,12 +524,51 @@ const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
 /* ══════════════════ */
 /*  AI Agent Section  */
 /* ══════════════════ */
+
+type AgentState =
+  | 'connecting'
+  | 'initializing'
+  | 'listening'
+  | 'thinking'
+  | 'speaking';
+
 const AgentSection = () => {
-  const { state, microphoneTrack } = useAgent();
+  const participants = useParticipants();
   const [barWidth, setBarWidth] = useState(0);
   const [barBorderRadius, setBarBorderRadius] = useState(0);
+  const [agentState, setAgentState] = useState<AgentState>('connecting');
 
-  const isActive = state === 'speaking';
+  // Find the agent participant — LiveKit agents have identity starting with "agent"
+  const agentParticipant = participants.find(
+    (p) => p.identity.startsWith('agent') || p.identity === 'orca-agent',
+  );
+
+  // Watch agent's speaking state via its microphone track publication
+  const agentMicTrack = agentParticipant
+    ? agentParticipant.getTrackPublication(Track.Source.Microphone)
+    : undefined;
+
+  useEffect(() => {
+    if (!agentParticipant) {
+      setAgentState('connecting');
+      return;
+    }
+    // Use the participant's isSpeaking property (updated by LiveKit SDK)
+    const update = () => {
+      if (agentParticipant.isSpeaking) {
+        setAgentState('speaking');
+      } else {
+        setAgentState('listening');
+      }
+    };
+    update();
+    agentParticipant.on('isSpeakingChanged', update);
+    return () => {
+      agentParticipant.off('isSpeakingChanged', update);
+    };
+  }, [agentParticipant]);
+
+  const isActive = agentState === 'speaking';
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
@@ -559,8 +587,8 @@ const AgentSection = () => {
     transform: [{ scale: pulseScale.value }],
   }));
 
-  const agentStateLabel = () => {
-    switch (state) {
+  const agentStateLabel = (): string => {
+    switch (agentState) {
       case 'speaking':
         return '🗣️ Speaking…';
       case 'listening':
@@ -577,7 +605,6 @@ const AgentSection = () => {
   return (
     <View style={styles.agentSection}>
       <View style={styles.agentInner}>
-        {/* Pulsing AI avatar */}
         <Animated.View style={[styles.agentAvatarWrap, pulseStyle]}>
           <View
             style={[
@@ -595,35 +622,36 @@ const AgentSection = () => {
           </View>
         </Animated.View>
 
-        {/* Text + visualizer */}
         <View style={styles.agentTextWrap}>
           <Text style={styles.agentName}>Orca AI</Text>
           <Text style={styles.agentStatus}>{agentStateLabel()}</Text>
           <Text style={styles.agentRole}>Host & Language Coach</Text>
         </View>
-
-        {/* Bar visualizer */}
-        <View
-          style={styles.barWrap}
-          onLayout={(e) => {
-            const h = e.nativeEvent.layout.height;
-            setBarWidth(h * 0.18);
-            setBarBorderRadius(h * 0.18);
-          }}
-        >
-          <BarVisualizer
-            state={state}
-            barCount={5}
-            trackRef={microphoneTrack}
-            options={{
-              minHeight: 0.1,
-              barWidth,
-              barColor: isActive ? '#FAD40B' : '#333',
-              barBorderRadius,
+        {/* 
+        {agentMicTrack ? (
+          <View
+            style={styles.barWrap}
+            onLayout={(e) => {
+              const h = e.nativeEvent.layout.height;
+              setBarWidth(h * 0.18);
+              setBarBorderRadius(h * 0.18);
             }}
-            style={{ width: '100%', height: '100%' }}
-          />
-        </View>
+          >
+            <BarVisualizer
+              trackRef={agentMicTrack}
+              barCount={5}
+              options={{
+                minHeight: 0.1,
+                barWidth,
+                barColor: isActive ? '#FAD40B' : '#333',
+                barBorderRadius,
+              }}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </View>
+        ) : (
+          <View style={styles.barWrap} />
+        )} */}
       </View>
     </View>
   );
@@ -632,47 +660,109 @@ const AgentSection = () => {
 /* ══════════════════ */
 /*  Transcript Panel  */
 /* ══════════════════ */
+
+type TranscriptMessage = {
+  id: string;
+  text: string;
+  participantName: string;
+  isAgent: boolean;
+  isLocal: boolean;
+  timestamp: number;
+};
+
 const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
-  const { messages } = useSessionMessages();
+  const lkRoom = useRoomContext();
   const { localParticipant } = useLocalParticipant();
+  const [messages, setMessages] = useState<TranscriptMessage[]>([]);
+
+  useEffect(() => {
+    if (!lkRoom) return;
+
+    const handleData = (payload: Uint8Array, participant: any) => {
+      try {
+        const text = new TextDecoder().decode(payload);
+        // LiveKit agents send JSON with a "text" field for transcriptions
+        let msgText = text;
+        try {
+          const parsed = JSON.parse(text);
+          msgText = parsed.text ?? parsed.message ?? text;
+        } catch {
+          // raw string — use as-is
+        }
+        if (!msgText.trim()) return;
+
+        const identity: string = participant?.identity ?? 'unknown';
+        const isAgent =
+          identity.startsWith('agent') || identity === 'orca-agent';
+        const isLocal = identity === localParticipant?.identity;
+
+        setMessages((prev) => [
+          {
+            id: `${Date.now()}-${Math.random()}`,
+            text: msgText,
+            participantName: isAgent
+              ? 'Orca AI'
+              : (participant?.name ?? participant?.identity ?? 'Participant'),
+            isAgent,
+            isLocal,
+            timestamp: Date.now(),
+          },
+          ...prev,
+        ]);
+      } catch (e) {
+        console.warn('TranscriptPanel data parse error', e);
+      }
+    };
+
+    lkRoom.on(RoomEvent.DataReceived, handleData);
+    return () => {
+      lkRoom.off(RoomEvent.DataReceived, handleData);
+    };
+  }, [lkRoom, localParticipant]);
 
   return (
     <View style={styles.transcriptPanel}>
       <FlatList
-        data={[...messages].reverse()}
-        inverted
-        keyExtractor={(_, i) => `msg-${i}`}
+        data={messages}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 12, gap: 8 }}
-        renderItem={({ item }) => {
-          const isLocal = item.from === localParticipant;
-          const isAgent = !isLocal && item.from?.identity?.startsWith('agent');
-          return (
-            <View
-              style={[
-                styles.msgBubble,
-                isLocal
-                  ? styles.msgBubbleLocal
-                  : isAgent
-                    ? styles.msgBubbleAgent
-                    : styles.msgBubbleOther,
-              ]}
-            >
-              {!isLocal && (
-                <Text style={styles.msgAuthor}>
-                  {isAgent ? '🤖 Orca AI' : (item.from?.name ?? 'Participant')}
-                </Text>
-              )}
-              <Text style={[styles.msgText, isLocal && styles.msgTextLocal]}>
-                {item.message}
-              </Text>
-            </View>
-          );
-        }}
         showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              styles.msgBubble,
+              item.isLocal
+                ? styles.msgBubbleLocal
+                : item.isAgent
+                  ? styles.msgBubbleAgent
+                  : styles.msgBubbleOther,
+            ]}
+          >
+            {!item.isLocal && (
+              <Text style={styles.msgAuthor}>
+                {item.isAgent ? '🤖 Orca AI' : item.participantName}
+              </Text>
+            )}
+            <Text style={[styles.msgText, item.isLocal && styles.msgTextLocal]}>
+              {item.text}
+            </Text>
+          </View>
+        )}
         ListEmptyComponent={() => (
           <View style={{ alignItems: 'center', paddingTop: 40, gap: 8 }}>
-            <Text style={{ color: '#555', fontSize: 13 }}>
+            <Text style={{ fontSize: 32 }}>💬</Text>
+            <Text style={{ color: '#555', fontSize: 13, fontWeight: '600' }}>
               Conversation will appear here
+            </Text>
+            <Text
+              style={{
+                color: '#444',
+                fontSize: 11,
+                textAlign: 'center',
+                paddingHorizontal: 24,
+              }}
+            >
+              Speech is transcribed in real time as participants talk
             </Text>
           </View>
         )}
@@ -889,6 +979,20 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.06)',
+  },
+  topicPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  topicPillEmoji: { fontSize: 13 },
+  topicPillText: {
+    color: '#FAD40B',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   roomTitle: {
     color: '#FFF',
