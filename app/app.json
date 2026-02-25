@@ -1,0 +1,137 @@
+{
+  "expo": {
+    "name": "orca",
+    "slug": "orca",
+    "scheme": "orca",
+    "version": "0.0.4",
+    "orientation": "portrait",
+    "icon": "./assets/images/orca.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "notification": {
+      "icon": "./assets/images/orca.png",
+      "color": "#FAD40B",
+      "androidMode": "default",
+      "androidCollapsedTitle": "{{unread_count}} new notifications"
+    },
+    "ios": {
+      "icon": "./assets/images/orca.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ahmedbna.orca",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Orca uses the microphone to evaluate your pronunciation during lesson test so you can pass levels and unlock the next ones.",
+        "NSSpeechRecognitionUsageDescription": "Orca converts your speech to text to check pronunciation and help you progress through the game.",
+        "NSPhotoLibraryUsageDescription": "Orca lets you choose a photo from your library to use as your profile picture.",
+        "NSCameraUsageDescription": "Orca uses camera to record your pronunciation practice video.",
+        "NSPhotoLibraryAddUsageDescription": "Orca want to save your practice video.",
+        "NSUserNotificationsUsageDescription": "Allow Orca to send you notifications about reactions and comments",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true
+      },
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FAD40B",
+        "foregroundImage": "./assets/images/orca.png",
+        "backgroundImage": "./assets/images/orca.png",
+        "monochromeImage": "./assets/images/orca.png"
+      },
+      "googleServicesFile": "./google-services.json",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "package": "com.ahmedbna.orca"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/orca.png"
+    },
+    "splash": {
+      "image": "./assets/images/orca.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#FAD40B"
+    },
+    "plugins": [
+      "expo-router",
+      "@livekit/react-native-expo-plugin",
+      "@config-plugins/react-native-webrtc",
+      "expo-asset",
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/orca.png",
+          "color": "#FAD40B",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Orca uses the microphone to listen to your pronunciation during lesson test so you can pass levels and unlock the next ones.",
+          "speechRecognitionPermission": "Allow speech recognition so Orca can evaluate your pronunciation during gameplay.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/orca.png",
+          "imageWidth": 200,
+          "resizeMode": "cover",
+          "backgroundColor": "#FAD40B",
+          "dark": {
+            "backgroundColor": "#FAD40B"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "minSdkVersion": 24,
+            "ndkVersion": "28.0.13004108",
+            "manifestPlaceholders": {
+              "expo.jsEngine": "hermes"
+            }
+          },
+          "ios": {
+            "deploymentTarget": "16.0"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "79717126-cf5d-46a3-a380-11ee0efe1fba"
+      }
+    }
+  }
+}

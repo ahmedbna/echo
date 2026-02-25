@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 16.28.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "CONVEX_DEPLOY_KEY": "prod:graceful-aardvark-513|eyJ2MiI6IjA3N2U1OGU4ZTEyYTRjNDRhMDg0YzI3NWU2NmJhY2I1In0=",
+        "EXPO_PUBLIC_CONVEX_URL": "https://graceful-aardvark-513.convex.cloud",
+        "EXPO_PUBLIC_CONVEX_SITE_URL": "https://tacit-kingfisher-668.convex.site",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_plfLJlXQfIQyqWpwdovNBZurUYu",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_ALjHiPXFELZRvcIOQjMXNIshDYF"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "CONVEX_DEPLOY_KEY": "prod:graceful-aardvark-513|eyJ2MiI6IjA3N2U1OGU4ZTEyYTRjNDRhMDg0YzI3NWU2NmJhY2I1In0=",
+        "EXPO_PUBLIC_CONVEX_URL": "https://graceful-aardvark-513.convex.cloud",
+        "EXPO_PUBLIC_CONVEX_SITE_URL": "https://tacit-kingfisher-668.convex.site",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_plfLJlXQfIQyqWpwdovNBZurUYu",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_ALjHiPXFELZRvcIOQjMXNIshDYF"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "CONVEX_DEPLOY_KEY": "prod:graceful-aardvark-513|eyJ2MiI6IjA3N2U1OGU4ZTEyYTRjNDRhMDg0YzI3NWU2NmJhY2I1In0=",
+        "EXPO_PUBLIC_CONVEX_URL": "https://graceful-aardvark-513.convex.cloud",
+        "EXPO_PUBLIC_CONVEX_SITE_URL": "https://tacit-kingfisher-668.convex.site",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_plfLJlXQfIQyqWpwdovNBZurUYu",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_ALjHiPXFELZRvcIOQjMXNIshDYF"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6757252035"
+      }
+    }
+  }
+}
