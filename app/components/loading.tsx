@@ -1,7 +1,7 @@
 import { Dimensions } from 'react-native';
 import { View } from '@/components/ui/view';
-import { Seafloor } from '@/components/orca/seafloor';
-import { BubbleLayers, Bubbles } from '@/components/orca/bubbles';
+import { Seafloor } from '@/components/echo/seafloor';
+import { BubbleLayers, Bubbles } from '@/components/echo/bubbles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');

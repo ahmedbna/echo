@@ -37,11 +37,11 @@ export default function DeletePage() {
           <Link href='/' className='flex flex-col items-center group'>
             <img
               src='/mic.png'
-              alt='Orca'
+              alt='echo'
               className='w-20 h-20 object-contain group-hover:scale-105 transition-transform duration-300'
             />
             <h1 className='font-display text-[clamp(32px,6vw,56px)] font-extrabold text-black leading-[0.95] tracking-[-0.04em] -mt-2'>
-              Orca
+              echo
             </h1>
           </Link>
         </div>
@@ -74,7 +74,7 @@ export default function DeletePage() {
             {/* Steps */}
             <div className='space-y-3 mb-8'>
               {[
-                { step: '1', text: 'Open the Orca app on your device' },
+                { step: '1', text: 'Open the echo app on your device' },
                 { step: '2', text: 'Go to Profile → Settings' },
                 {
                   step: '3',
@@ -100,7 +100,7 @@ export default function DeletePage() {
               <p className='text-sm text-black/60 leading-relaxed'>
                 Need help?{' '}
                 <a
-                  href='mailto:support@orca.ahmedbna.com'
+                  href='mailto:support@echo.ahmedbna.com'
                   className='text-black font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity'
                 >
                   Contact support

@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { View } from '@/components/ui/view';
 import { Text } from '@/components/ui/text';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { SquishyCard } from '@/components/squishy/squishy-card';
 import { SquishyInput } from '@/components/squishy/squishy-input';
 import { InputOTP } from '@/components/ui/input-otp';
@@ -427,7 +427,7 @@ export const Password: React.FC = () => {
             textAlign: 'center',
           }}
         >
-          Orca
+          echo
         </Text>
       </View>
 

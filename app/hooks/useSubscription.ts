@@ -7,7 +7,7 @@ import { Alert } from 'react-native';
 import * as Purchases from '@/config/purchases';
 
 export type SubscriptionStatus = {
-  tier: 'free' | 'Orca+';
+  tier: 'free' | 'echo+';
   status: string | null;
   platform: 'ios' | 'android' | null;
   hasActiveSubscription: boolean;
@@ -112,7 +112,7 @@ export function useSubscription() {
     try {
       const paywallResult: PAYWALL_RESULT =
         await RevenueCatUI.presentPaywallIfNeeded({
-          requiredEntitlementIdentifier: 'Orca+',
+          requiredEntitlementIdentifier: 'echo+',
           offering: offerings?.current,
         });
 
@@ -147,7 +147,7 @@ export function useSubscription() {
   const syncPurchaseWithBackend = async () => {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
-      const entitlement = customerInfo?.entitlements.active['Orca+'];
+      const entitlement = customerInfo?.entitlements.active['echo+'];
 
       if (!entitlement) {
         console.error('Purchase successful but no entitlement found');
@@ -184,7 +184,7 @@ export function useSubscription() {
   const syncRestoreWithBackend = async () => {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
-      const entitlement = customerInfo?.entitlements.active['Orca+'];
+      const entitlement = customerInfo?.entitlements.active['echo+'];
 
       if (!entitlement) {
         Alert.alert(
@@ -220,7 +220,7 @@ export function useSubscription() {
     try {
       const customerInfo = await Purchases.restorePurchases();
       const entitlement =
-        customerInfo.customerInfo?.entitlements.active['Orca+'];
+        customerInfo.customerInfo?.entitlements.active['echo+'];
 
       if (!entitlement) {
         Alert.alert(

@@ -5,7 +5,7 @@ import { View } from '@/components/ui/view';
 import { Text } from '@/components/ui/text';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SquishyInput } from '@/components/squishy/squishy-input';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 
 export const NewRoom = ({
@@ -93,7 +93,7 @@ export const NewRoom = ({
                 marginTop: 4,
               }}
             >
-              Orca AI will join as moderator &amp; language coach
+              echo AI will join as moderator &amp; language coach
             </Text>
 
             <View
@@ -156,7 +156,7 @@ export const NewRoom = ({
                 paddingHorizontal: 4,
               }}
             >
-              Customize how Orca AI behaves in this specific room. Leave empty
+              Customize how echo AI behaves in this specific room. Leave empty
               to use default coaching style.
             </Text>
           </View>

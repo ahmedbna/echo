@@ -40,7 +40,7 @@ export function AdminSidebar() {
             🐋
           </div>
           <div>
-            <p className='text-sm font-bold leading-none'>Orca</p>
+            <p className='text-sm font-bold leading-none'>echo</p>
             <p className='text-[10px] text-muted-foreground mt-0.5'>
               Admin Panel
             </p>

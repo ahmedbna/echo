@@ -23,7 +23,7 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 
 export interface DateRange {
   startDate: Date | null;
@@ -40,7 +40,7 @@ interface BaseDatePickerProps {
   minimumDate?: Date;
   maximumDate?: Date;
   timeFormat?: '12' | '24';
-  variant?: 'filled' | 'outline' | 'group' | 'orca';
+  variant?: 'filled' | 'outline' | 'group' | 'echo';
   labelStyle?: TextStyle;
   errorStyle?: TextStyle;
 }
@@ -82,7 +82,7 @@ const YEARS = Array.from({ length: 101 }, (_, i) => currentYear - 50 + i);
 
 // Type guard to check if value is DateRange
 const isDateRange = (
-  value: Date | DateRange | undefined
+  value: Date | DateRange | undefined,
 ): value is DateRange => {
   return (
     value !== undefined &&
@@ -132,7 +132,7 @@ export function DatePicker(props: DatePickerProps) {
 
   const [currentDate, setCurrentDate] = useState(() => getCurrentDate());
   const [viewMode, setViewMode] = useState<'date' | 'time' | 'month' | 'year'>(
-    'date'
+    'date',
   );
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [showYearPicker, setShowYearPicker] = useState(false);
@@ -141,7 +141,7 @@ export function DatePicker(props: DatePickerProps) {
   const [tempRange, setTempRange] = useState<DateRange>(() =>
     mode === 'range' && isDateRange(value)
       ? value
-      : { startDate: null, endDate: null }
+      : { startDate: null, endDate: null },
   );
 
   // Theme colors
@@ -245,7 +245,7 @@ export function DatePicker(props: DatePickerProps) {
       if (maximumDate && date > maximumDate) return true;
       return false;
     },
-    [minimumDate, maximumDate]
+    [minimumDate, maximumDate],
   );
 
   // Helper function to check if a date is in range
@@ -267,7 +267,7 @@ export function DatePicker(props: DatePickerProps) {
 
       return checkDate >= startDate && checkDate <= endDate;
     },
-    [mode, tempRange]
+    [mode, tempRange],
   );
 
   // Helper function to check if a date is a range endpoint
@@ -291,7 +291,7 @@ export function DatePicker(props: DatePickerProps) {
 
       return { isStart: !!isStart, isEnd: !!isEnd };
     },
-    [mode, tempRange]
+    [mode, tempRange],
   );
 
   // Memoized calendar calculations
@@ -339,7 +339,7 @@ export function DatePicker(props: DatePickerProps) {
     const selectedDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
     );
 
     // Check if date is disabled
@@ -380,7 +380,7 @@ export function DatePicker(props: DatePickerProps) {
     const newDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      day
+      day,
     );
 
     // Check if date is disabled
@@ -786,7 +786,7 @@ export function DatePicker(props: DatePickerProps) {
               }}
             >
               {Array.from({ length: timeFormat === '12' ? 12 : 24 }, (_, i) =>
-                timeFormat === '12' ? (i === 0 ? 12 : i) : i
+                timeFormat === '12' ? (i === 0 ? 12 : i) : i,
               ).map((hour) => {
                 const actualHour =
                   timeFormat === '12'
@@ -1071,7 +1071,7 @@ export function DatePicker(props: DatePickerProps) {
 
   return (
     <>
-      {variant === 'orca' ? (
+      {variant === 'echo' ? (
         <OrcaButton
           label={value ? formatDisplayValue() : label ? label : 'Select Date'}
           onPress={handleOpenPicker}

@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColor } from '@/hooks/useColor';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { OrcaButton } from '../squishy/orca-button';
+import { OrcaButton } from '../squishy/echo-button';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthActions } from '@convex-dev/auth/react';
 
@@ -45,7 +45,7 @@ const bubbles = [
 ];
 
 export const Auth = () => {
-  const yellow = useColor('orca');
+  const yellow = useColor('echo');
   const insets = useSafeAreaInsets();
 
   const { signIn } = useAuthActions();
@@ -118,13 +118,13 @@ export const Auth = () => {
         <View style={{ paddingHorizontal: 32, marginTop: 4 }}>
           <Text style={{ fontSize: 16, textAlign: 'center', color: '#000' }}>
             By continuing, you agree to our{'\n'}
-            <Link href='https://orca.ahmedbna.com/terms'>
+            <Link href='https://echo.ahmedbna.com/terms'>
               <Text variant='link' style={{ fontSize: 14, color: '#000' }}>
                 Terms of Service
               </Text>
             </Link>{' '}
             and{' '}
-            <Link href='https://orca.ahmedbna.com/privacy'>
+            <Link href='https://echo.ahmedbna.com/privacy'>
               <Text variant='link' style={{ fontSize: 14, color: '#000' }}>
                 Privacy Policy
               </Text>

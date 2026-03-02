@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { View } from '@/components/ui/view';
 import { Text } from '@/components/ui/text';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { Lock, Crown, X } from 'lucide-react-native';
 import { useEffect } from 'react';
 import * as Haptics from 'expo-haptics';
@@ -160,7 +160,7 @@ export function Paywall({ visible, onClose, courseTitle }: PaywallProps) {
             lineHeight: 24,
           }}
         >
-          Upgrade to Orca Plus to access all courses and unlock your full
+          Upgrade to echo Plus to access all courses and unlock your full
           language learning potential.
         </Text>
 
@@ -174,7 +174,7 @@ export function Paywall({ visible, onClose, courseTitle }: PaywallProps) {
 
         {/* CTA Button */}
         <OrcaButton
-          label='Upgrade to Orca Plus'
+          label='Upgrade to echo Plus'
           variant='yellow'
           onPress={handleUpgrade}
           icon={<Crown size={24} color='#000' />}

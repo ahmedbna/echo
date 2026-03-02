@@ -19,7 +19,7 @@ import { Text } from '@/components/ui/text';
 import { Spinner } from '@/components/ui/spinner';
 import { Image } from 'expo-image';
 import { ChevronLeft, Plus, Bot } from 'lucide-react-native';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { RoomCard } from '@/components/rooms/room-card';
@@ -120,7 +120,7 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
             variant='heading'
             style={{ color: '#000', fontSize: 32, marginLeft: -6 }}
           >
-            Orca
+            echo
           </Text>
         </Button>
 
@@ -171,7 +171,7 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
         <View style={styles.aiBanner}>
           <Bot size={16} color='#FAD40B' strokeWidth={2.5} />
           <Text style={styles.aiBannerText}>
-            AI-moderated rooms — Orca joins every room as your language coach
+            AI-moderated rooms — echo joins every room as your language coach
           </Text>
         </View>
 
@@ -186,7 +186,7 @@ export const Rooms = ({ user, topicId, topicTitle, topic }: Props) => {
             <View style={styles.emptyTextWrap}>
               <Text style={styles.emptyTitle}>No rooms yet</Text>
               <Text style={styles.emptyBody}>
-                Start an AI-powered {topicTitle} discussion where Orca moderates
+                Start an AI-powered {topicTitle} discussion where echo moderates
                 and coaches everyone in real time
               </Text>
             </View>

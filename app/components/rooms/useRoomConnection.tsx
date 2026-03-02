@@ -56,7 +56,7 @@ export function RoomConnectionProvider({
 
   const greetingInstructions = `
 Speak in ${learningLanguage}.
-Greet the group warmly. Introduce yourself as "Orca", their AI language coach and room host for this session.
+Greet the group warmly. Introduce yourself as "echo", their AI language coach and room host for this session.
 Mention that you will guide the discussion${topicLabel ? ` about ${topicLabel}` : ''}.
 Invite everyone to introduce themselves in ${learningLanguage}.
 Keep it brief — two to three sentences max.
@@ -64,7 +64,7 @@ Keep it brief — two to three sentences max.
 
   const baseRoomInstructions = `
 ROLE
-You are "Orca", an expert and encouraging ${learningLanguage} language coach hosting and moderating a group audio discussion.
+You are "echo", an expert and encouraging ${learningLanguage} language coach hosting and moderating a group audio discussion.
 You are the room HOST — you keep the conversation structured, on-topic, and productive.
 ${topicLabel ? `\nTOPIC\nThe room topic / category is: ${topicLabel}. Keep discussions relevant to this theme.` : ''}
 

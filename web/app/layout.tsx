@@ -16,26 +16,26 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Orca',
-    template: 'Orca | %s',
+    default: 'echo',
+    template: 'echo | %s',
   },
   description: 'The fun way to learn a new language',
-  metadataBase: new URL('https://orca.ahmedbna.com'),
+  metadataBase: new URL('https://echo.ahmedbna.com'),
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FAD40B' },
     { media: '(prefers-color-scheme: dark)', color: '#FAD40B' },
   ],
   openGraph: {
-    title: 'Orca',
-    description: 'Orca',
-    url: 'https://orca.ahmedbna.com',
-    siteName: 'Orca',
+    title: 'echo',
+    description: 'echo',
+    url: 'https://echo.ahmedbna.com',
+    siteName: 'echo',
     images: [
       {
         url: '/android-chrome-512x512.png',
         width: 800,
         height: 800,
-        alt: 'Orca',
+        alt: 'echo',
       },
     ],
     locale: 'en_US',
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Orca',
-    description: 'Orca',
+    title: 'echo',
+    description: 'echo',
     images: ['/android-chrome-512x512.png'],
   },
   icons: {
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   appLinks: {
     web: {
-      url: 'https://orca.ahmedbna.com/',
+      url: 'https://echo.ahmedbna.com/',
       should_fallback: true,
     },
   },

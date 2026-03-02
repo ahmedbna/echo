@@ -37,7 +37,7 @@ import { Text } from '@/components/ui/text';
 import { Spinner } from '@/components/ui/spinner';
 import { Image } from 'expo-image';
 import { Mic, MicOff, Phone, Users, MessageSquare } from 'lucide-react-native';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ALL_LANGUAGES } from '@/constants/languages';
@@ -87,7 +87,7 @@ async function requestMicPermission(): Promise<boolean> {
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         {
           title: 'Microphone Permission',
-          message: 'Orca Room needs microphone access.',
+          message: 'echo Room needs microphone access.',
           buttonPositive: 'Allow',
           buttonNegative: 'Deny',
         },
@@ -213,7 +213,7 @@ export const Room = ({ room, currentUser, roomId }: Props) => {
           {!audioReady ? 'Preparing Audio' : 'Joining Room'}
         </Text>
         <Text style={[styles.loadingSubtitle, { color: 'rgba(0,0,0,0.5)' }]}>
-          Connecting you and Orca AI…
+          Connecting you and echo AI…
         </Text>
       </View>
     );
@@ -392,7 +392,7 @@ const RoomView = ({ room, currentUser, roomId, onLeave }: RoomViewProps) => {
             variant='heading'
             style={{ color: '#000', fontSize: 32, marginLeft: -6 }}
           >
-            Orca
+            echo
           </Text>
         </Button>
         {/* <Avatar
@@ -540,7 +540,7 @@ const AgentSection = () => {
 
   // Find the agent participant — LiveKit agents have identity starting with "agent"
   const agentParticipant = participants.find(
-    (p) => p.identity.startsWith('agent') || p.identity === 'orca-agent',
+    (p) => p.identity.startsWith('agent') || p.identity === 'echo-agent',
   );
 
   // Watch agent's speaking state via its microphone track publication
@@ -623,7 +623,7 @@ const AgentSection = () => {
         </Animated.View>
 
         <View style={styles.agentTextWrap}>
-          <Text style={styles.agentName}>Orca AI</Text>
+          <Text style={styles.agentName}>echo AI</Text>
           <Text style={styles.agentStatus}>{agentStateLabel()}</Text>
           <Text style={styles.agentRole}>Host & Language Coach</Text>
         </View>
@@ -693,7 +693,7 @@ const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
 
         const identity: string = participant?.identity ?? 'unknown';
         const isAgent =
-          identity.startsWith('agent') || identity === 'orca-agent';
+          identity.startsWith('agent') || identity === 'echo-agent';
         const isLocal = identity === localParticipant?.identity;
 
         setMessages((prev) => [
@@ -701,7 +701,7 @@ const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
             id: `${Date.now()}-${Math.random()}`,
             text: msgText,
             participantName: isAgent
-              ? 'Orca AI'
+              ? 'echo AI'
               : (participant?.name ?? participant?.identity ?? 'Participant'),
             isAgent,
             isLocal,
@@ -740,7 +740,7 @@ const TranscriptPanel = ({ onClose }: { onClose: () => void }) => {
           >
             {!item.isLocal && (
               <Text style={styles.msgAuthor}>
-                {item.isAgent ? '🤖 Orca AI' : item.participantName}
+                {item.isAgent ? '🤖 echo AI' : item.participantName}
               </Text>
             )}
             <Text style={[styles.msgText, item.isLocal && styles.msgTextLocal]}>

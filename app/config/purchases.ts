@@ -20,7 +20,7 @@ export const PRODUCT_IDS = {
 } as const;
 
 // Subscription tiers
-export type SubscriptionTier = 'free' | 'Orca+';
+export type SubscriptionTier = 'free' | 'echo+';
 
 // Initialize RevenueCat
 export const initializePurchases = async (userId: string) => {
@@ -131,8 +131,8 @@ export const hasActiveSubscription = async (): Promise<boolean> => {
     // Check for active entitlement
     const entitlements = customerInfo.entitlements.active;
 
-    // Check if "Orca+" entitlement is active
-    return 'Orca+' in entitlements && entitlements['Orca+'].isActive;
+    // Check if "echo+" entitlement is active
+    return 'echo+' in entitlements && entitlements['echo+'].isActive;
   } catch (error) {
     console.error('Error checking subscription:', error);
     return false;
@@ -146,7 +146,7 @@ export const getSubscriptionInfo = async () => {
 
     if (!customerInfo) return null;
 
-    const plusEntitlement = customerInfo.entitlements.active['Orca+'];
+    const plusEntitlement = customerInfo.entitlements.active['echo+'];
 
     if (!plusEntitlement) return null;
 

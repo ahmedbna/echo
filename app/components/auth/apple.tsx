@@ -5,7 +5,7 @@ import { makeRedirectUri } from 'expo-auth-session';
 import { openAuthSessionAsync } from 'expo-web-browser';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 
 const redirectTo = makeRedirectUri();
 

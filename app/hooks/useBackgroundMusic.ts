@@ -5,14 +5,14 @@ import { usePathname } from 'expo-router';
 import { useAudioPlayer } from 'expo-audio';
 import { setAudioModeAsync } from 'expo-audio';
 
-const audioSource = require('@/assets/music/orca.mp3');
+const audioSource = require('@/assets/music/echo.mp3');
 
 export function useBackgroundMusic(mute: boolean) {
   const pathname = usePathname();
   const isPlayingRef = useRef(false);
   const playerRef = useRef<ReturnType<typeof useAudioPlayer> | null>(null);
 
-  const isOrcaRoute = pathname.startsWith('/orca/');
+  const isOrcaRoute = pathname.startsWith('/echo/');
   const isStudyRoute = pathname.includes('/study/');
   const isSpeechRoute = isOrcaRoute || isStudyRoute;
 

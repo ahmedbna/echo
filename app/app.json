@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "orca",
-    "slug": "orca",
-    "scheme": "orca",
+    "name": "echo",
+    "slug": "echo",
+    "scheme": "echo",
     "version": "0.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/echo.png",
@@ -17,14 +17,14 @@
     "ios": {
       "icon": "./assets/images/echo.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.ahmedbna.orca",
+      "bundleIdentifier": "com.ahmedbna.echo",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Orca uses the microphone to evaluate your pronunciation during lesson test so you can pass levels and unlock the next ones.",
-        "NSSpeechRecognitionUsageDescription": "Orca converts your speech to text to check pronunciation and help you progress through the game.",
-        "NSPhotoLibraryUsageDescription": "Orca lets you choose a photo from your library to use as your profile picture.",
-        "NSCameraUsageDescription": "Orca uses camera to record your pronunciation practice video.",
-        "NSPhotoLibraryAddUsageDescription": "Orca want to save your practice video.",
-        "NSUserNotificationsUsageDescription": "Allow Orca to send you notifications about reactions and comments",
+        "NSMicrophoneUsageDescription": "echo uses the microphone to evaluate your pronunciation during lesson test so you can pass levels and unlock the next ones.",
+        "NSSpeechRecognitionUsageDescription": "echo converts your speech to text to check pronunciation and help you progress through the game.",
+        "NSPhotoLibraryUsageDescription": "echo lets you choose a photo from your library to use as your profile picture.",
+        "NSCameraUsageDescription": "echo uses camera to record your pronunciation practice video.",
+        "NSPhotoLibraryAddUsageDescription": "echo want to save your practice video.",
+        "NSUserNotificationsUsageDescription": "Allow echo to send you notifications about reactions and comments",
         "ITSAppUsesNonExemptEncryption": false,
         "UIFileSharingEnabled": true,
         "LSSupportsOpeningDocumentsInPlace": true
@@ -56,7 +56,7 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.POST_NOTIFICATIONS"
       ],
-      "package": "com.ahmedbna.orca"
+      "package": "com.ahmedbna.echo"
     },
     "web": {
       "output": "static",
@@ -85,8 +85,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Orca uses the microphone to listen to your pronunciation during lesson test so you can pass levels and unlock the next ones.",
-          "speechRecognitionPermission": "Allow speech recognition so Orca can evaluate your pronunciation during gameplay.",
+          "microphonePermission": "echo uses the microphone to listen to your pronunciation during lesson test so you can pass levels and unlock the next ones.",
+          "speechRecognitionPermission": "Allow speech recognition so echo can evaluate your pronunciation during gameplay.",
           "androidSpeechServicePackages": [
             "com.google.android.googlequicksearchbox"
           ]

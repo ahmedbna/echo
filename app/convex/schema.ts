@@ -25,7 +25,7 @@ export default defineSchema({
     scheduledForDeletion: v.optional(v.number()),
 
     subscriptionTier: v.optional(
-      v.union(v.literal('free'), v.literal('Orca+')),
+      v.union(v.literal('free'), v.literal('echo+')),
     ),
     subscriptionStatus: v.optional(
       v.union(

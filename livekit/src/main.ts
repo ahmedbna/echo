@@ -42,11 +42,11 @@ export default defineAgent({
     // The app sends greetingInstructions + roomInstructions
     const greetingInstructions =
       metadata.greetingInstructions ??
-      'Greet the group warmly and introduce yourself as Orca, the AI language coach.';
+      'Greet the group warmly and introduce yourself as echo, the AI language coach.';
 
     const roomInstructions =
       metadata.roomInstructions ??
-      'You are Orca, an expert language coach moderating a group discussion. Be encouraging, correct mistakes gently, and keep the conversation flowing.';
+      'You are echo, an expert language coach moderating a group discussion. Be encouraging, correct mistakes gently, and keep the conversation flowing.';
 
     const learningLanguage = metadata.learningLanguage ?? 'English';
     const nativeLanguage = metadata.nativeLanguage ?? 'English';

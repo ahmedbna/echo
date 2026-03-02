@@ -25,7 +25,7 @@ export default defineSchema({
     scheduledForDeletion: v.optional(v.number()),
 
     subscriptionTier: v.optional(
-      v.union(v.literal('free'), v.literal('Orca+')),
+      v.union(v.literal('free'), v.literal('echo+')),
     ),
     subscriptionStatus: v.optional(
       v.union(
@@ -233,4 +233,14 @@ export default defineSchema({
     .index('by_platform', ['platform'])
     .index('by_started_at', ['startedAt'])
     .index('by_is_active', ['isActive']),
+
+  waitlist: defineTable({
+    email: v.string(),
+    joinedAt: v.number(),
+    notified: v.optional(v.boolean()),
+    source: v.optional(v.string()), // 'hero' | 'cta'
+  })
+    .index('by_email', ['email'])
+    .index('by_joined_at', ['joinedAt'])
+    .index('by_notified', ['notified']),
 });

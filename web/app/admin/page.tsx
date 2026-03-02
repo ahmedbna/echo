@@ -113,7 +113,7 @@ export default function AdminOverviewPage() {
         <div>
           <h1 className='text-2xl font-bold'>Analytics Overview</h1>
           <p className='text-muted-foreground text-sm mt-0.5'>
-            Orca app usage insights
+            echo app usage insights
           </p>
         </div>
         <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>

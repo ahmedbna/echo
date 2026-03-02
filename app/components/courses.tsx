@@ -162,7 +162,7 @@ const CourseCard = ({
                   fontWeight: '800',
                 }}
               >
-                Orca+
+                echo+
               </Text>
             </View>
           ) : (

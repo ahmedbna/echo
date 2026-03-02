@@ -130,7 +130,7 @@ export const RoomCard = ({
               <View style={styles.aiAvatar}>
                 <Bot size={20} color='#000' strokeWidth={2} />
               </View>
-              <Text style={styles.aiLabel}>Orca AI</Text>
+              <Text style={styles.aiLabel}>echo AI</Text>
             </View>
 
             {/* Human avatars */}

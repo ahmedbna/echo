@@ -117,7 +117,7 @@ export default function RootLayout() {
                   flex: 1,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: Colors.dark.orca,
+                  backgroundColor: Colors.dark.echo,
                 }}
               >
                 <Spinner size='lg' variant='circle' color='#000000' />

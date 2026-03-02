@@ -49,7 +49,7 @@ export const hasAccess = query({
 
     // Check if user has active subscription
     if (
-      user.subscriptionTier === 'Orca+' &&
+      user.subscriptionTier === 'echo+' &&
       (user.subscriptionStatus === 'active' ||
         user.subscriptionStatus === 'in_grace_period')
     ) {
@@ -141,7 +141,7 @@ export const purchaseSubscription = mutation({
 
       // Update user status
       await ctx.db.patch(userId, {
-        subscriptionTier: 'Orca+',
+        subscriptionTier: 'echo+',
         subscriptionStatus: 'active',
         subscriptionPlatform: args.platform,
       });
@@ -178,7 +178,7 @@ export const purchaseSubscription = mutation({
 
     // Update user status
     await ctx.db.patch(userId, {
-      subscriptionTier: 'Orca+',
+      subscriptionTier: 'echo+',
       subscriptionStatus: 'active',
       subscriptionPlatform: args.platform,
     });
@@ -278,7 +278,7 @@ export const restoreSubscription = mutation({
 
       // Update user
       await ctx.db.patch(userId, {
-        subscriptionTier: 'Orca+',
+        subscriptionTier: 'echo+',
         subscriptionStatus: 'active',
         subscriptionPlatform: args.platform,
       });
@@ -354,7 +354,7 @@ export const handleRenewal = internalMutation({
 
     // Update user status
     await ctx.db.patch(subscription.userId, {
-      subscriptionTier: 'Orca+',
+      subscriptionTier: 'echo+',
       subscriptionStatus: 'active',
     });
 

@@ -153,7 +153,7 @@ export default function Index() {
             variant='heading'
             style={{ color: '#000', fontSize: 32, marginLeft: -6 }}
           >
-            Orca
+            echo
           </Text>
         </Button>
 

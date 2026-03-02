@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColor } from '@/hooks/useColor';
 import { NATIVES, LANGUAGES } from '@/constants/languages';
-import { OrcaButton } from '@/components/squishy/orca-button';
+import { OrcaButton } from '@/components/squishy/echo-button';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Progress } from '@/components/squishy/progress';
 import { Image } from 'expo-image';
@@ -58,7 +58,7 @@ const triggerHaptic = (style: Haptics.ImpactFeedbackStyle) => {
 
 export const Onboarding = ({ user }: { user?: Doc<'users'> }) => {
   const insets = useSafeAreaInsets();
-  const yellow = useColor('orca');
+  const yellow = useColor('echo');
   const border = useColor('border');
   const background = useColor('background');
 
@@ -257,7 +257,7 @@ export const Onboarding = ({ user }: { user?: Doc<'users'> }) => {
                 Select your Birthday
               </Text>
               <DatePicker
-                variant='orca'
+                variant='echo'
                 label='Birthday'
                 value={birthday}
                 onChange={setBirthday}

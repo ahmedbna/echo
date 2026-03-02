@@ -38,13 +38,13 @@ export const ResendOTPPasswordReset = Resend({
 
     try {
       const { data, error } = await resend.emails.send({
-        from: 'Orca <orca@orca.ahmedbna.com>',
+        from: 'echo <echo@echo.ahmedbna.com>',
         to: [email],
-        subject: `Reset your Orca password`,
+        subject: `Reset your echo password`,
         text: `Your password reset code is: ${token}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Reset your Orca password</h2>
+            <h2>Reset your echo password</h2>
             <p>You requested to reset your password. Your verification code is:</p>
             <div style="font-size: 24px; font-weight: bold; background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
               ${token}

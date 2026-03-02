@@ -5,13 +5,19 @@ import { useEffect, useState } from 'react';
 import { Reveal } from '@/components/reveal';
 import { DotNav } from '@/components/dot-nav';
 import { FeatureSection } from '@/components/feature-section';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const join = useMutation(api.waitlist.join);
 
   useEffect(() => {
-    // tiny delay so the entrance animation fires visibly
     const t = setTimeout(() => setLoaded(true), 60);
     const onScroll = (e: Event) => {
       const el = e.target as HTMLElement;
@@ -24,6 +30,18 @@ export default function Home() {
       container?.removeEventListener('scroll', onScroll);
     };
   }, []);
+
+  const handleWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || submitting) return;
+
+    setSubmitting(true);
+
+    await join({ email, source: 'hero' });
+
+    setSubmitted(true);
+    setSubmitting(false);
+  };
 
   return (
     <>
@@ -62,6 +80,7 @@ export default function Home() {
         className='h-screen overflow-y-scroll'
         style={{ scrollSnapType: 'y mandatory', scrollBehavior: 'smooth' }}
       >
+        {/* ── Hero ── */}
         <section
           className='snap-start h-screen w-full flex flex-col items-center justify-center px-6 relative overflow-hidden bg-[#FAD40B]'
           style={{
@@ -86,94 +105,36 @@ export default function Home() {
           >
             <img
               src='/mic.png'
-              alt='Orca'
-              className='mt-36 w-64 h-64 object-contain mx-auto mb-1'
+              alt='echo'
+              className='-mt-26 w-64 h-64 object-contain mx-auto mb-1'
             />
-            <h1 className='-mt-12 font-display text-[clamp(46px,8.5vw,88px)] font-extrabold text-black leading-[0.95] tracking-[-0.04em] mb-5'>
-              The fun way to
-              <br />
-              learn a language
-            </h1>
 
-            {/* Store buttons */}
-            <div
-              className='flex gap-3 justify-center flex-wrap'
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? 'translateY(0)' : 'translateY(16px)',
-                transition:
-                  'opacity 1s cubic-bezier(0.16,1,0.3,1) 280ms, transform 1s cubic-bezier(0.16,1,0.3,1) 280ms',
-              }}
-            >
-              <a
-                href='https://apps.apple.com/app/orca/id6757252035'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='transition-transform duration-200 hover:scale-105 active:scale-95'
-              >
-                <img src='/app-store.svg' alt='App Store' className='h-12' />
-              </a>
-              <a
-                href='https://play.google.com/store/apps/details?id=com.ahmedbna.orca'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='transition-transform duration-200 hover:scale-105 active:scale-95'
-              >
-                <img
-                  src='/google-play.svg'
-                  alt='Google Play'
-                  className='h-12'
-                />
-              </a>
-            </div>
+            <h1 className='font-display text-[clamp(80px,16vw,152px)] font-extrabold text-black leading-[0.85] tracking-[-0.06em] mb-4'>
+              echo
+            </h1>
+            <p className='text-black/60 text-[clamp(15px,1.8vw,20px)] font-medium max-w-lg mx-auto leading-snug'>
+              4 Humans. 1 AI. One live audio room.
+            </p>
           </div>
 
-          {/* Three floating phones */}
           <div
-            className='relative z-10 flex items-end justify-center gap-4 md:gap-5'
+            className='relative z-10 w-full max-w-lg'
             style={{
               opacity: loaded ? 1 : 0,
-              transform: loaded
-                ? `translateY(${scrollY * -0.07}px)`
-                : 'translateY(72px)',
-              transition: loaded
-                ? 'opacity 1.1s cubic-bezier(0.16,1,0.3,1) 360ms'
-                : 'none',
+              transform: loaded ? 'translateY(0)' : 'translateY(16px)',
+              transition:
+                'opacity 1s cubic-bezier(0.16,1,0.3,1) 300ms, transform 1s cubic-bezier(0.16,1,0.3,1) 300ms',
             }}
           >
-            <div
-              className='float-a mb-5 opacity-75 hidden sm:block'
-              style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.18))' }}
-            >
-              <img
-                src='/screens/lessons.png'
-                alt='Lessons'
-                className='w-[150px] md:w-[170px] rounded-[1.8rem]'
-              />
-            </div>
-            <div
-              className='float-b'
-              style={{ filter: 'drop-shadow(0 36px 64px rgba(0,0,0,0.22))' }}
-            >
-              <img
-                src='/screens/home.png'
-                alt='Home'
-                className='w-[180px] md:w-[210px] rounded-[2rem]'
-              />
-            </div>
-            <div
-              className='float-c mb-5 opacity-75 hidden sm:block'
-              style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.18))' }}
-            >
-              <img
-                src='/screens/ai-teacher.png'
-                alt='AI Teacher'
-                className='w-[150px] md:w-[170px] rounded-[1.8rem]'
-              />
-            </div>
+            <WaitlistCard
+              email={email}
+              setEmail={setEmail}
+              submitted={submitted}
+              submitting={submitting}
+              onSubmit={handleWaitlist}
+            />
           </div>
 
-          {/* scroll cue */}
           <div
             className='absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1'
             style={{ opacity: loaded ? 0.4 : 0, transition: 'opacity 1s 1.4s' }}
@@ -186,65 +147,66 @@ export default function Home() {
         </section>
 
         <FeatureSection
-          tag='Structured Learning'
-          title='A journey built on the CEFR framework'
-          body='Progress from A1 beginner to C1 advanced through a carefully crafted curriculum. Every lesson builds on the last — packed with grammar, vocabulary, and real-life sentences.'
-          img='/screens/journey.png'
-          alt='CEFR Journey'
-          flip={false}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='AI-Powered'
-          title='Your AI teacher, always available'
-          body='Ask any question mid-lesson. Get your pronunciation scored in real time. Infinitely patient, available 24/7, and perfectly tailored to where you are.'
-          img='/screens/ai-teacher.png'
-          alt='AI Teacher'
-          flip={true}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='Community'
-          title='Discuss every lesson with fellow learners'
-          body='Each lesson has its own thread. Post a question, share a breakthrough, reply to others. Learning moves faster when you do it together.'
-          img='/screens/discussion.png'
-          alt='Discussion'
-          flip={false}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='Live Rooms'
-          title='Study together in live voice rooms'
-          body='Join a live audio room with students working on the same lesson. Speak, listen, and motivate each other — the energy of a study group, from anywhere.'
+          tag='Live Audio'
+          title='Jump in. Start talking. No scripts.'
+          body='Echo drops you into a live voice room with three real people and an AI that keeps up. Every session is spontaneous — raw, unfiltered, completely alive. No text. No filters. Just voices.'
           img='/screens/voice-room.png'
-          alt='Voice Rooms'
-          flip={true}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='Pronunciation Game'
-          title='Beat the clock. Master pronunciation.'
-          body="Race against the timer to nail phrases as accurately as you can. Addictive, fast, and the best way to drill pronunciation until it's muscle memory."
-          img='/screens/game.png'
-          alt='Pronunciation Game'
+          alt='Live Room'
           flip={false}
           gradient='bg-[#FAD40B]'
         />
 
         <FeatureSection
-          tag='Challenges'
-          title='Challenge friends. Climb the leaderboard.'
-          body='Compete in weekly challenges, meet students learning the same language, and push each other forward. Motivation through friendly competition.'
-          img='/screens/challenge.png'
-          alt='Challenges'
+          tag='AI Co-host'
+          title='An AI that challenges, not just answers'
+          body="Your AI co-host doesn't sit on the sidelines. It debates, provokes, plays devil's advocate, and throws curveballs — always pushing the conversation somewhere unexpected and electric."
+          img='/screens/ai-teacher.png'
+          alt='AI Co-host'
           flip={true}
           gradient='bg-[#FAD40B]'
         />
 
+        <FeatureSection
+          tag='Room Formats'
+          title='Debate. Explore. Compete. Your call.'
+          body='Pick a format — open debate, collaborative deep-dive, or team vs. team showdown. Each session has its own energy. Come back tomorrow and it will feel completely different.'
+          img='/screens/journey.png'
+          alt='Room Formats'
+          flip={false}
+          gradient='bg-[#FAD40B]'
+        />
+
+        <FeatureSection
+          tag='Topics'
+          title='From philosophy to pop culture'
+          body='Anything worth talking about belongs in Echo. Hot takes on tech, wild hypotheticals, social debates, or just vibing about movies. The AI picks up any thread and runs with it.'
+          img='/screens/discussion.png'
+          alt='Topics'
+          flip={true}
+          gradient='bg-[#FAD40B]'
+        />
+
+        <FeatureSection
+          tag='Matchmaking'
+          title='Matched with people worth talking to'
+          body='Echo pairs you with people who want the same kind of conversation — curious, opinionated, and ready to go. No awkward silences. No dead air. Just good talk from the first second.'
+          img='/screens/home.png'
+          alt='Matchmaking'
+          flip={false}
+          gradient='bg-[#FAD40B]'
+        />
+
+        <FeatureSection
+          tag='Highlights'
+          title='The best moments, clipped automatically'
+          body='When a conversation gets electric, Echo knows it. Auto-highlights capture the sharpest takes and wildest turns so you can replay, share, or cringe at them later.'
+          img='/screens/game.png'
+          alt='Highlights'
+          flip={true}
+          gradient='bg-[#FAD40B]'
+        />
+
+        {/* ── CTA ── */}
         <section
           className='snap-start h-screen w-full flex flex-col items-center justify-center px-6 relative overflow-hidden bg-[#FAD40B]'
           style={{
@@ -259,42 +221,27 @@ export default function Home() {
           <Reveal className='relative z-10 text-center max-w-xl'>
             <img
               src='/mic.png'
-              alt='Orca'
-              className='w-62 object-contain mx-auto mb-2'
+              alt='echo'
+              className='-mt-26 w-62 object-contain mx-auto mb-2'
             />
             <h2 className='-mt-12 font-display text-[clamp(40px,7vw,80px)] font-extrabold text-black leading-[0.97] tracking-[-0.04em] mb-5'>
-              Start speaking
+              echo
               <br />
-              today.
+              launching soon
             </h2>
-            <p className='text-[clamp(15px,1.7vw,18px)] text-black/55 leading-relaxed mb-10 mx-auto'>
-              Free to download. Start your first lesson in minutes.
-            </p>
-            <div className='flex gap-3 justify-center flex-wrap'>
-              <a
-                href='https://apps.apple.com/app/orca/id6757252035'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='transition-transform duration-200 hover:scale-105 active:scale-95'
-              >
-                <img src='/app-store.svg' alt='App Store' className='h-14' />
-              </a>
-              <a
-                href='https://play.google.com/store/apps/details?id=com.ahmedbna.orca'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='transition-transform duration-200 hover:scale-105 active:scale-95'
-              >
-                <img
-                  src='/google-play.svg'
-                  alt='Google Play'
-                  className='h-14'
-                />
-              </a>
+
+            <div className='max-w-lg mx-auto'>
+              <WaitlistCard
+                email={email}
+                setEmail={setEmail}
+                submitted={submitted}
+                submitting={submitting}
+                onSubmit={handleWaitlist}
+                large
+              />
             </div>
           </Reveal>
 
-          {/* Footer links */}
           <div className='absolute bottom-8 flex gap-8'>
             <Link
               href='/privacy'
@@ -314,5 +261,109 @@ export default function Home() {
 
       <DotNav total={8} />
     </>
+  );
+}
+
+function WaitlistCard({
+  email,
+  setEmail,
+  submitted,
+  submitting,
+  onSubmit,
+  large = false,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  submitted: boolean;
+  submitting: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+  large?: boolean;
+}) {
+  if (submitted) {
+    return (
+      <div
+        className='rounded-2xl border border-black/10 bg-white/70 backdrop-blur-md shadow-xl p-6 text-center'
+        style={{
+          boxShadow:
+            '0 8px 48px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.9) inset',
+        }}
+      >
+        <div
+          className='flex items-center justify-center gap-[4px] mx-auto mb-3'
+          style={{ height: 30 }}
+        >
+          {[0.35, 0.6, 0.9, 1, 0.9, 0.6, 0.35].map((s, i) => (
+            <div
+              key={i}
+              className='bg-black rounded-full'
+              style={{
+                width: 4,
+                height: 24,
+                transform: `scaleY(${s})`,
+                transformOrigin: 'center',
+              }}
+            />
+          ))}
+        </div>
+        <p className='font-display text-xl font-extrabold text-black tracking-tight'>
+          You're on the list.
+        </p>
+        <p className='text-sm text-black/50 mt-1'>
+          We'll ping you when Echo goes live.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className='rounded-2xl border border-black/10 bg-white/70 backdrop-blur-md shadow-xl p-5'
+      style={{
+        boxShadow:
+          '0 8px 48px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.9) inset',
+      }}
+    >
+      <p className='text-xs font-bold text-black/40 uppercase tracking-widest mb-3 text-center'>
+        Join the waitlist
+      </p>
+      <form onSubmit={onSubmit} className='flex flex-col gap-3'>
+        <input
+          type='email'
+          required
+          placeholder='your@email.com'
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={`w-full rounded-xl border border-black/15 bg-white/80 px-4 text-sm text-black placeholder:text-black/30 outline-none focus:border-black/40 focus:ring-2 focus:ring-black/10 transition-all duration-150 ${large ? 'h-12 text-base' : 'h-11'}`}
+        />
+        <button
+          type='submit'
+          disabled={submitting}
+          className={`w-full rounded-xl bg-black text-[#FAD40B] font-bold tracking-wide hover:bg-black/80 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-black/20 ${large ? 'h-12 text-base' : 'h-11 text-sm'}`}
+        >
+          {submitting && (
+            <svg
+              className='h-4 w-4 animate-spin text-[#FAD40B]'
+              viewBox='0 0 24 24'
+            >
+              <circle
+                className='opacity-25'
+                cx='12'
+                cy='12'
+                r='10'
+                stroke='currentColor'
+                strokeWidth='4'
+                fill='none'
+              />
+              <path
+                className='opacity-75'
+                fill='currentColor'
+                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              />
+            </svg>
+          )}
+          Notify me at launch →
+        </button>
+      </form>
+    </div>
   );
 }
