@@ -52,7 +52,7 @@ export const FeatureSection = ({
           <h2 className='font-display text-[clamp(28px,4vw,52px)] font-extrabold leading-[1.05] tracking-[-0.03em] text-black mb-5'>
             {title}
           </h2>
-          <p className='text-[clamp(15px,1.5vw,18px)] leading-[1.72] text-black/60 max-w-md'>
+          <p className='text-black/60 text-[clamp(15px,1.8vw,20px)] font-medium max-w-md leading-snug'>
             {body}
           </p>
         </Reveal>

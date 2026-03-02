@@ -113,7 +113,8 @@ export default function Home() {
               echo
             </h1>
             <p className='text-black/60 text-[clamp(15px,1.8vw,20px)] font-medium max-w-lg mx-auto leading-snug'>
-              4 Humans. 1 AI. One live audio room.
+              {`Live audio arena where four real people team up against
+              one powerful AI in real-time voice conversations.`}
             </p>
           </div>
 
@@ -148,9 +149,9 @@ export default function Home() {
 
         <FeatureSection
           tag='Live Audio'
-          title='Jump in. Start talking. No scripts.'
-          body='Echo drops you into a live voice room with three real people and an AI that keeps up. Every session is spontaneous — raw, unfiltered, completely alive. No text. No filters. Just voices.'
-          img='/screens/voice-room.png'
+          title='4 Humans vs 1 AI'
+          body='Step into a real-time audio room where four people face off against one AI. Debate, challenge, collaborate, and think out loud together.'
+          img='/screens/chat.png'
           alt='Live Room'
           flip={false}
           gradient='bg-[#FAD40B]'
@@ -158,9 +159,9 @@ export default function Home() {
 
         <FeatureSection
           tag='AI Co-host'
-          title='An AI that challenges, not just answers'
-          body="Your AI co-host doesn't sit on the sidelines. It debates, provokes, plays devil's advocate, and throws curveballs — always pushing the conversation somewhere unexpected and electric."
-          img='/screens/ai-teacher.png'
+          title='Can You Outsmart the AI?'
+          body={`Battle the AI in debates. Question its logic. Challenge its answers. Push its limits. It’s not just a chat, it’s a live intellectual showdown.`}
+          img='/screens/voice-room.png'
           alt='AI Co-host'
           flip={true}
           gradient='bg-[#FAD40B]'
@@ -168,9 +169,9 @@ export default function Home() {
 
         <FeatureSection
           tag='Room Formats'
-          title='Debate. Explore. Compete. Your call.'
-          body='Pick a format — open debate, collaborative deep-dive, or team vs. team showdown. Each session has its own energy. Come back tomorrow and it will feel completely different.'
-          img='/screens/journey.png'
+          title='Learn Faster. Think Deeper. Together.'
+          body='Study topics, explore ideas, and break down complex concepts with your team and an AI that never sleeps. Perfect for curious minds who love real conversations.'
+          img='/screens/ai-teacher.png'
           alt='Room Formats'
           flip={false}
           gradient='bg-[#FAD40B]'
@@ -178,30 +179,10 @@ export default function Home() {
 
         <FeatureSection
           tag='Topics'
-          title='From philosophy to pop culture'
-          body='Anything worth talking about belongs in Echo. Hot takes on tech, wild hypotheticals, social debates, or just vibing about movies. The AI picks up any thread and runs with it.'
-          img='/screens/discussion.png'
+          title='Not Just Smart. Seriously Fun.'
+          body='Laugh. Compete. Collaborate. echo transforms ordinary voice chats into high-energy, unpredictable experiences where humans and AI collide.'
+          img='/screens/chat.png'
           alt='Topics'
-          flip={true}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='Matchmaking'
-          title='Matched with people worth talking to'
-          body='Echo pairs you with people who want the same kind of conversation — curious, opinionated, and ready to go. No awkward silences. No dead air. Just good talk from the first second.'
-          img='/screens/home.png'
-          alt='Matchmaking'
-          flip={false}
-          gradient='bg-[#FAD40B]'
-        />
-
-        <FeatureSection
-          tag='Highlights'
-          title='The best moments, clipped automatically'
-          body='When a conversation gets electric, Echo knows it. Auto-highlights capture the sharpest takes and wildest turns so you can replay, share, or cringe at them later.'
-          img='/screens/game.png'
-          alt='Highlights'
           flip={true}
           gradient='bg-[#FAD40B]'
         />
@@ -259,7 +240,7 @@ export default function Home() {
         </section>
       </div>
 
-      <DotNav total={8} />
+      <DotNav total={6} />
     </>
   );
 }
